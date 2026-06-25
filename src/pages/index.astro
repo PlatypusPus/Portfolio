@@ -13,21 +13,30 @@ const BIO = `I'm a 4th year engineering student who likes to play games and buil
       <span class="corner br"></span>
       <span class="panel-label">~./shovinJesonDsouza</span>
 
-      <h1 class="name">Shovin Jeson Dsouza</h1>
-      <p class="role">4th Year Engineering Student · Building stuff for fun</p>
+      <div class="profile">
+        <div class="profile-text">
+          <h1 class="name">Shovin Jeson Dsouza</h1>
+          <p class="role">4th Year Engineering Student · Building stuff for fun</p>
 
-      <p class="bio"><span id="bio"></span><span class="cursor" id="cursor"></span></p>
+          <p class="bio"><span id="bio"></span><span class="cursor" id="cursor"></span></p>
 
-      <div class="skills">
-        <span>Python</span>
-        <span>C</span>
-        <span>JavaScript</span>
-        <span>C#</span>
-      </div>
+          <div class="skills">
+            <span>Python</span>
+            <span>C</span>
+            <span>JavaScript</span>
+            <span>C#</span>
+          </div>
 
-      <div class="status" id="status" hidden>
-        <span class="dot"></span>
-        Available · Summer 2026
+          <div class="status" id="status" hidden>
+            <span class="dot"></span>
+            Available · Summer 2026
+          </div>
+        </div>
+
+        <figure class="avatar">
+          <img src="/shovin.png" alt="Shovin Jeson Dsouza" width="220" height="220" />
+          <figcaption>shovin.png</figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -39,55 +48,54 @@ const BIO = `I'm a 4th year engineering student who likes to play games and buil
   const cursor = document.getElementById("cursor");
   const status = document.getElementById("status");
 
-  let i = 0;
-  const timer = setInterval(() => {
-    bio.textContent = BIO.slice(0, ++i);
-    if (i >= BIO.length) {
-      clearInterval(timer);
-      cursor.classList.add("blink");
-      status.hidden = false;
-    }
-  }, CHAR_DELAY);
+  function start() {
+    let i = 0;
+    const timer = setInterval(() => {
+      bio.textContent = BIO.slice(0, ++i);
+      if (i >= BIO.length) {
+        clearInterval(timer);
+        cursor.classList.add("blink");
+        status.hidden = false;
+      }
+    }, CHAR_DELAY);
+  }
+
+  // wait for the Arch boot overlay to finish before typing
+  if (window.__booted) start();
+  else addEventListener("boot-complete", start, { once: true });
 </script>
 
 <style>
   .hero { padding: 32px 0; }
 
-  .panel {
+  .profile {
+    display: flex;
+    align-items: flex-start;
+    gap: 48px;
+  }
+  .profile-text { flex: 1; min-width: 0; }
+
+  /* framed avatar — terminal aesthetic */
+  .avatar {
+    flex-shrink: 0;
+    margin: 0;
     position: relative;
+  }
+  .avatar img {
+    display: block;
+    width: 220px;
+    height: 220px;
+    object-fit: cover;
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 56px 60px;
-    /* faint terminal grid backdrop */
-    background-image:
-      linear-gradient(rgba(0,255,65,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,65,0.025) 1px, transparent 1px);
-    background-size: 28px 28px;
+    filter: grayscale(0.2) contrast(1.05);
   }
-
-  /* label sitting on the top border */
-  .panel-label {
-    position: absolute;
-    top: -0.6em;
-    left: 32px;
-    padding: 0 10px;
-    background: var(--bg);
+  .avatar figcaption {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 0.78rem;
     color: var(--text-dim);
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
   }
-
-  /* corner brackets — the fitting pattern */
-  .corner {
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    border: 2px solid var(--green);
-  }
-  .corner.tl { top: -1px; left: -1px;  border-right: none; border-bottom: none; }
-  .corner.tr { top: -1px; right: -1px; border-left: none;  border-bottom: none; }
-  .corner.bl { bottom: -1px; left: -1px;  border-right: none; border-top: none; }
-  .corner.br { bottom: -1px; right: -1px; border-left: none;  border-top: none; }
 
   .cmd-accent {
     font-size: 0.95rem;
@@ -168,6 +176,12 @@ const BIO = `I'm a 4th year engineering student who likes to play games and buil
   @keyframes pulse-dot {
     0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,65,0.4); }
     50%      { opacity: 0.5; box-shadow: 0 0 0 6px rgba(0,255,65,0); }
+  }
+
+  @media (max-width: 760px) {
+    .profile { flex-direction: column-reverse; gap: 28px; }
+    .avatar { align-self: flex-start; }
+    .avatar img { width: 160px; height: 160px; }
   }
 
   @media (max-width: 600px) {

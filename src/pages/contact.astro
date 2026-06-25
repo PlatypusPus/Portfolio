@@ -1,0 +1,68 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="shov.in — contact">
+  <section class="hero">
+    <div class="panel">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+      <span class="panel-label">~/contact</span>
+
+      <h1 class="page-title">contact</h1>
+      <p class="page-body">Reach out — always happy to talk.</p>
+
+      <ul class="contact-list">
+        <li>
+          <span class="key">email</span>
+          <a href="mailto:shovindsouza27@gmail.com">shovindsouza27@gmail.com</a>
+        </li>
+        <li>
+          <span class="key">github</span>
+          <a href="https://github.com/" target="_blank" rel="noopener">github.com/shovin</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero { padding: 32px 0; }
+  .page-title {
+    font-size: 2rem;
+    color: var(--green);
+    letter-spacing: -0.5px;
+  }
+  .page-body {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text);
+    margin-top: 20px;
+  }
+  .contact-list {
+    list-style: none;
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .contact-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    font-size: 1.05rem;
+  }
+  .key {
+    color: var(--text-dim);
+    min-width: 80px;
+  }
+  .contact-list a {
+    color: var(--green);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .contact-list a:hover { border-bottom-color: var(--green); }
+</style>

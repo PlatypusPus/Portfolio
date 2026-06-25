@@ -1,0 +1,37 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="shov.in — projects">
+  <section class="hero">
+    <div class="panel">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+      <span class="panel-label">~/projects</span>
+
+      <h1 class="page-title">projects</h1>
+      <p class="page-body">
+        Things I've built — from Minecraft plugins to scalable apps.
+        Coming soon.
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero { padding: 32px 0; }
+  .page-title {
+    font-size: 2rem;
+    color: var(--green);
+    letter-spacing: -0.5px;
+  }
+  .page-body {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text);
+    margin-top: 20px;
+    max-width: 640px;
+  }
+</style>

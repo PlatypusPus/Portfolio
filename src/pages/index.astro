@@ -1,17 +1,131 @@
 ---
+import Layout from "../layouts/Layout.astro";
 
+const BIO = `I'm a 4th year engineering student who likes to play games and build projects for fun. Started off customizing Minecraft plugins, ended up building scalable applications.`;
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="kazuh.dev — home">
+  <section class="hero">
+    <p class="cmd-accent">$ ./shovinJesonDsouza</p>
+
+    <h1 class="name">Shovin Jeson Dsouza</h1>
+    <p class="role">4th Year Engineering Student · Building stuff for fun</p>
+
+    <p class="bio"><span id="bio"></span><span class="cursor" id="cursor"></span></p>
+
+    <div class="skills">
+      <span>Python</span>
+      <span>C</span>
+      <span>JavaScript</span>
+      <span>C#</span>
+    </div>
+
+    <div class="status" id="status" hidden>
+      <span class="dot"></span>
+      Available · Summer 2026
+    </div>
+  </section>
+</Layout>
+
+<script define:vars={{ BIO }}>
+  const CHAR_DELAY = 14;
+  const bio = document.getElementById("bio");
+  const cursor = document.getElementById("cursor");
+  const status = document.getElementById("status");
+
+  let i = 0;
+  const timer = setInterval(() => {
+    bio.textContent = BIO.slice(0, ++i);
+    if (i >= BIO.length) {
+      clearInterval(timer);
+      cursor.classList.add("blink");
+      status.hidden = false;
+    }
+  }, CHAR_DELAY);
+</script>
+
+<style>
+  .hero {
+    display: flex;
+    flex-direction: column;
+    max-width: 560px;
+  }
+
+  .cmd-accent {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+    letter-spacing: 0.02em;
+  }
+
+  .name {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--green);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+
+  .role {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    margin-top: 10px;
+  }
+
+  .bio {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text);
+    margin-top: 28px;
+    min-height: 5.1em;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1em;
+    background: var(--green);
+    transform: translateY(1px);
+    margin-left: 2px;
+  }
+  .cursor.blink { animation: blink 1.1s step-end infinite; }
+
+  .skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 28px;
+  }
+  .skills span {
+    font-size: 0.78rem;
+    color: var(--text);
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 32px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse-dot 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,65,0.4); }
+    50%      { opacity: 0.5; box-shadow: 0 0 0 5px rgba(0,255,65,0); }
+  }
+
+  @media (max-width: 500px) {
+    .name { font-size: 1.7rem; }
+  }
+</style>

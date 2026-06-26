@@ -1,5 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { Image } from "astro:assets";
+import shovin from "../assets/shovin.png";
 
 const BIO = `I'm a 4th year engineering student who likes to play games and build projects for fun. Started off customizing Minecraft plugins, ended up building scalable applications.`;
 const DISCORD = "mystic_mc";
@@ -23,7 +25,7 @@ const DISCORD = "mystic_mc";
         </div>
 
         <figure class="avatar">
-          <img src="/shovin.png" alt="Shovin Jeson Dsouza" width="220" height="220" />
+          <Image src={shovin} alt="Shovin Jeson Dsouza" width={440} densities={[1, 2]} loading="eager" fetchpriority="high" />
           <figcaption>shovin.png</figcaption>
         </figure>
       </div>
@@ -223,7 +225,6 @@ const DISCORD = "mystic_mc";
     border: 1px solid var(--border);
     border-radius: 6px;
     background: none;
-    cursor: pointer;
     font: inherit;
     transition: color 0.15s, border-color 0.15s, background 0.15s;
   }

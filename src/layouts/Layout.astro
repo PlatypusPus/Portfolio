@@ -144,6 +144,27 @@ const NAV = [
 
   html, body { height: 100%; }
 
+  /* ── Custom terminal cursor (whole viewport, incl. gutters) ── */
+  html, body {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='24' viewBox='0 0 16 24'%3E%3Cpath d='M1 1 L1 17 L5 13 L8 19 L10 18 L7 12 L13 12 Z' fill='%2300ff41' stroke='%230d0d0d' stroke-width='1' stroke-linejoin='round'/%3E%3C/svg%3E") 1 1, auto;
+  }
+  a, button, [role="button"], .nav-link, summary, label {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='24' viewBox='0 0 16 24'%3E%3Cpath d='M1 1 L1 17 L5 13 L8 19 L10 18 L7 12 L13 12 Z' fill='%230d0d0d' stroke='%2300ff41' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E") 1 1, pointer;
+  }
+
+  /* ── Minimal scrollbar ── */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--green); }
+
   /* ── Arch-style boot overlay ── */
   .boot {
     position: fixed;

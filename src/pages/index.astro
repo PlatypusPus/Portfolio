@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 
 const BIO = `I'm a 4th year engineering student who likes to play games and build projects for fun. Started off customizing Minecraft plugins, ended up building scalable applications.`;
+const DISCORD = "mystic_mc";
 ---
 
 <Layout title="shov.in">
@@ -19,24 +20,45 @@ const BIO = `I'm a 4th year engineering student who likes to play games and buil
           <p class="role">4th Year Engineering Student · Building stuff for fun</p>
 
           <p class="bio"><span id="bio"></span><span class="cursor" id="cursor"></span></p>
-
-          <div class="skills">
-            <span>Python</span>
-            <span>C</span>
-            <span>JavaScript</span>
-            <span>C#</span>
-          </div>
-
-          <div class="status" id="status" hidden>
-            <span class="dot"></span>
-            Available · Summer 2026
-          </div>
         </div>
 
         <figure class="avatar">
           <img src="/shovin.png" alt="Shovin Jeson Dsouza" width="220" height="220" />
           <figcaption>shovin.png</figcaption>
         </figure>
+      </div>
+
+      <div class="actions">
+        <a class="resume" href="/ShovinJesonDsouza.pdf" target="_blank" rel="noopener">
+          <span class="resume-cmd">$ cat</span> resume.pdf
+          <span class="resume-arrow">↗</span>
+        </a>
+
+        <div class="socials">
+          <a href="https://github.com/PlatypusPus" target="_blank" rel="noopener" aria-label="GitHub">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+              <path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.6-4.04-1.6-.55-1.4-1.34-1.77-1.34-1.77-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.39 1.24-3.23-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.92 1.24 3.23 0 4.62-2.81 5.64-5.49 5.94.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0 0 24 12.5C24 5.87 18.63.5 12 .5z"/>
+            </svg>
+            <span class="tip">PlatypusPus</span>
+          </a>
+          <a href="https://www.linkedin.com/in/shovindsouza/" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+              <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/>
+            </svg>
+            <span class="tip">shovindsouza</span>
+          </a>
+          <button type="button" class="copy-discord" data-user={DISCORD} aria-label={`Copy Discord username: ${DISCORD}`}>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+              <path d="M20.32 4.37A19.8 19.8 0 0 0 15.45 3l-.24.5c1.7.4 2.48.97 3.3 1.67a13.3 13.3 0 0 0-4.95-1.58 13.7 13.7 0 0 0-3.32 0A13.3 13.3 0 0 0 5.49 5.2c.85-.73 1.66-1.3 3.3-1.7L8.55 3c-1.8.3-3.44.85-4.87 1.37C.61 9.1-.25 13.7.18 18.25a19.9 19.9 0 0 0 6.06 3.06l.49-.66c-.83-.31-1.62-.7-2.36-1.16.2-.14.39-.29.57-.44a14.2 14.2 0 0 0 12.12 0c.18.16.37.3.57.44-.74.46-1.53.85-2.36 1.16l.49.66a19.8 19.8 0 0 0 6.06-3.06c.5-5.27-.85-9.83-3.61-13.88zM8.02 15.45c-1.18 0-2.16-1.1-2.16-2.44 0-1.34.95-2.44 2.16-2.44 1.2 0 2.18 1.1 2.16 2.44 0 1.34-.96 2.44-2.16 2.44zm7.96 0c-1.18 0-2.16-1.1-2.16-2.44 0-1.34.96-2.44 2.16-2.44 1.21 0 2.18 1.1 2.16 2.44 0 1.34-.95 2.44-2.16 2.44z"/>
+            </svg>
+            <span class="tip">{DISCORD}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="status" id="status" hidden>
+        <span class="dot"></span>
+        Available · Summer 2026
       </div>
     </div>
   </section>
@@ -63,6 +85,22 @@ const BIO = `I'm a 4th year engineering student who likes to play games and buil
   // wait for the Arch boot overlay to finish before typing
   if (window.__booted) start();
   else addEventListener("boot-complete", start, { once: true });
+
+  const dc = document.querySelector(".copy-discord");
+  const tip = dc.querySelector(".tip");
+  dc.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(dc.dataset.user);
+      tip.textContent = "copied!";
+    } catch {
+      tip.textContent = dc.dataset.user;
+    }
+    dc.classList.add("show");
+    setTimeout(() => {
+      dc.classList.remove("show");
+      setTimeout(() => (tip.textContent = dc.dataset.user), 200);
+    }, 1100);
+  });
 </script>
 
 <style>
@@ -138,24 +176,88 @@ const BIO = `I'm a 4th year engineering student who likes to play games and buil
   }
   .cursor.blink { animation: blink 1.1s step-end infinite; }
 
-  .skills {
+  .actions {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 16px;
     margin-top: 36px;
   }
-  .skills span {
-    font-size: 0.95rem;
+
+  .resume {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 1rem;
     color: var(--text);
-    padding: 7px 16px;
+    text-decoration: none;
     border: 1px solid var(--border);
     border-radius: 6px;
-    transition: border-color 0.15s, color 0.15s;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
   }
-  .skills span:hover {
+  .resume:hover {
     border-color: var(--green);
     color: var(--green);
+    background: rgba(0, 255, 65, 0.05);
   }
+  .resume-cmd { color: var(--green); }
+  .resume-arrow { font-size: 0.9rem; opacity: 0.7; }
+
+  .socials {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 220px; /* match avatar width so icons center under the image */
+  }
+  .socials a,
+  .socials button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .socials a:hover,
+  .socials button:hover {
+    color: var(--green);
+    border-color: var(--green);
+    background: rgba(0, 255, 65, 0.05);
+  }
+
+  /* username preview tooltip (all socials) */
+  .socials .tip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    color: var(--green);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .socials a:hover .tip,
+  .socials button:hover .tip,
+  .copy-discord.show .tip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .copy-discord.show .tip { border-color: var(--green); }
 
   .status {
     display: flex;

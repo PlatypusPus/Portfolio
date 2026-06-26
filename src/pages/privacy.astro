@@ -1,0 +1,87 @@
+---
+import Layout from "../layouts/Layout.astro";
+const updated = "June 2026";
+---
+
+<Layout title="shov.in — privacy">
+  <section class="hero">
+    <div class="panel">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+      <span class="panel-label">~/privacy</span>
+
+      <h1 class="page-title">privacy</h1>
+      <p class="updated">last updated: {updated}</p>
+
+      <div class="prose">
+        <p>
+          This is a personal portfolio site. It's intentionally simple, and it
+          collects as little as possible.
+        </p>
+
+        <h2>What's collected</h2>
+        <p>
+          Nothing directly. There are no accounts, no contact forms, no
+          analytics or tracking scripts, and no advertising cookies on this site.
+        </p>
+
+        <h2>Hosting</h2>
+        <p>
+          Like any website, the host may keep standard server logs (IP address,
+          browser type, pages requested) for security and operational reasons.
+          These are not used to identify or profile you.
+        </p>
+
+        <h2>External links</h2>
+        <p>
+          Links out to GitHub, LinkedIn, Discord, and project demos lead to
+          third-party services with their own privacy policies. This site isn't
+          responsible for how they handle your data.
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          Questions about this page? Reach me at
+          <a href="mailto:shovindsouza27@gmail.com">shovindsouza27@gmail.com</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero { padding: 32px 0; }
+
+  .page-title {
+    font-size: 2rem;
+    color: var(--green);
+    letter-spacing: -0.5px;
+  }
+  .updated {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    margin-top: 8px;
+  }
+
+  .prose { margin-top: 28px; max-width: 680px; }
+  .prose h2 {
+    font-size: 1.05rem;
+    color: var(--text);
+    margin-top: 28px;
+    margin-bottom: 8px;
+  }
+  .prose p {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--text-dim);
+  }
+  .prose a {
+    color: var(--green);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .prose a:hover { border-bottom-color: var(--green); }
+</style>

@@ -24,6 +24,9 @@ const NAV = [
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+    <script is:inline>
+      document.documentElement.classList.add("js");
+    </script>
   </head>
   <body>
     <div id="boot" class="boot" aria-hidden="true">
@@ -49,6 +52,17 @@ const NAV = [
     <main class="terminal-body">
       <slot />
     </main>
+
+    <footer class="footer">
+      <span class="foot-line">
+        <span class="foot-prompt">shovin@portfolio:~$</span>{" "}
+        <span class="foot-cmd">exit</span>
+      </span>
+      <div class="foot-links">
+        <span class="foot-copy">© {new Date().getFullYear()} Shovin Jeson Dsouza</span>
+        <a href="/privacy">privacy</a>
+      </div>
+    </footer>
 
     <script>
       const boot = document.getElementById("boot");
@@ -126,6 +140,22 @@ const NAV = [
         addEventListener("keydown", onSkip, { once: true });
       }
     </script>
+
+    <script>
+      // Reveal panels as they scroll into view
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add("in");
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { threshold: 0.1, rootMargin: "0px 0px -8% 0px" }
+      );
+      document.querySelectorAll(".panel").forEach((el) => io.observe(el));
+    </script>
   </body>
 </html>
 
@@ -142,7 +172,17 @@ const NAV = [
     --cursor:   #00ff41;
   }
 
-  html, body { height: 100%; }
+  html {
+    height: 100%;
+    background-color: var(--bg);
+  }
+
+  /* ── Green text selection ── */
+  ::selection {
+    background: var(--green);
+    color: var(--bg);
+    text-shadow: none;
+  }
 
   /* ── Custom terminal cursor (whole viewport, incl. gutters) ── */
   html, body {
@@ -272,6 +312,25 @@ const NAV = [
   .corner.bl { bottom: -1px; left: -1px;  border-right: none; border-top: none; }
   .corner.br { bottom: -1px; right: -1px; border-left: none;  border-top: none; }
 
+  /* ── Scroll-reveal (panels fade + slide up as they enter view) ── */
+  html.js .panel {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  html.js .panel.in {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html.js .panel,
+    html.js .panel.in {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
   .prompt {
     color: var(--green);
     font-size: 1rem;
@@ -297,6 +356,33 @@ const NAV = [
   .terminal-body {
     padding: 40px 0;
   }
+
+  /* ── Footer ── */
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 24px 0 40px;
+    margin-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 0.82rem;
+  }
+  .foot-prompt { color: var(--green); }
+  .foot-cmd { color: var(--amber); }
+  .foot-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    color: var(--text-dim);
+  }
+  .foot-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .foot-links a:hover { color: var(--green); }
 
   /* ── Shared bits ── */
   .cursor {

@@ -1,5 +1,15 @@
 ---
 import Layout from "../layouts/Layout.astro";
+
+// ── What you're up to right now ──
+const CURRENTLY = [
+  { key: "building", value: "full-stack apps & in-browser AI experiments" },
+  { key: "exploring", value: "self-hosting, homelabs & Linux tinkering" },
+  { key: "into", value: "open source and the FOSS community" },
+  { key: "playing", value: "way too many games" },
+];
+
+const INTERESTS = ["Gaming", "FOSS", "Self-hosting", "Linux", "3D / Blender", "Hackathons"];
 ---
 
 <Layout title="shov.in — about">
@@ -11,10 +21,72 @@ import Layout from "../layouts/Layout.astro";
       <span class="corner br"></span>
       <span class="panel-label">~/about</span>
 
-      <h1 class="page-title">about</h1>
-      <p class="page-body">
-        More about me — background, what I'm building, and how I got here.
-        Coming soon.
+      <p class="cmd">$ cat about.md</p>
+
+      <h1 class="page-title">about me</h1>
+
+      <div class="prose">
+        <p>
+          Hey — I'm Shovin, a Computer Science &amp; Data Science engineering
+          student based in Mangalore. I got into tech the way a lot of people my
+          age did: messing with Minecraft. Customizing server plugins turned
+          "how do I change this?" into "how does any of this actually work?" —
+          and I never really stopped asking.
+        </p>
+        <p>
+          These days I build full-stack applications and like getting my hands
+          dirty across the stack — from real-time chat apps to in-browser AI
+          tools. I'm a big believer in open source and self-hosting: I'd rather
+          understand and own my infrastructure than rent a black box.
+        </p>
+        <p>
+          Outside of shipping code, I spend a lot of time with community — as
+          Vice President of the Sceptix Club, organizing hackathons like
+          HackToFuture, and running workshops on everything from Linux to Gitea.
+          Teaching something is still the best way I know to actually learn it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="panel">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+      <span class="panel-label">~/currently</span>
+
+      <p class="cmd">$ uptime</p>
+
+      <ul class="current-list">
+        {CURRENTLY.map((row) => (
+          <li>
+            <span class="ck">{row.key}</span>
+            <span class="cv">{row.value}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="panel">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+      <span class="panel-label">~/interests</span>
+
+      <p class="cmd">$ ls ~/interests</p>
+
+      <div class="interests">
+        {INTERESTS.map((it) => <span>{it}</span>)}
+      </div>
+
+      <p class="outro">
+        Want to build something or just talk shop?
+        <a href="/contact">→ get in touch</a>
       </p>
     </div>
   </section>
@@ -22,16 +94,88 @@ import Layout from "../layouts/Layout.astro";
 
 <style>
   .hero { padding: 32px 0; }
+  .block { padding: 0 0 32px; }
+
+  .cmd {
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+  }
+
   .page-title {
     font-size: 2rem;
     color: var(--green);
     letter-spacing: -0.5px;
   }
-  .page-body {
-    font-size: 1.1rem;
-    line-height: 1.8;
+
+  .prose { margin-top: 24px; max-width: 680px; }
+  .prose p {
+    font-size: 1rem;
+    line-height: 1.85;
     color: var(--text);
-    margin-top: 20px;
-    max-width: 640px;
+    margin-bottom: 18px;
+  }
+  .prose p:last-child { margin-bottom: 0; }
+
+  /* currently */
+  .current-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .current-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .ck {
+    flex-shrink: 0;
+    width: 110px;
+    color: var(--green);
+    font-size: 0.95rem;
+  }
+  .cv {
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+
+  /* interests */
+  .interests {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .interests span {
+    font-size: 0.85rem;
+    color: var(--text);
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .interests span:hover {
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .outro {
+    margin-top: 28px;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+  }
+  .outro a {
+    color: var(--green);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+    margin-left: 6px;
+  }
+  .outro a:hover { border-bottom-color: var(--green); }
+
+  @media (max-width: 540px) {
+    .current-list li { flex-direction: column; gap: 4px; }
+    .ck { width: auto; }
   }
 </style>

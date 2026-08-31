@@ -50,7 +50,7 @@ const { tag, file } = Astro.props;
     color: var(--border);
     letter-spacing: 1px;
   }
-  .rail-foot, .rail-top {
+  .rail-foot {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -63,13 +63,6 @@ const { tag, file } = Astro.props;
     height: 70px;
     background: linear-gradient(var(--border), transparent);
   }
-  .rail-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--green);
-    animation: pulse-dot 2.4s ease-in-out infinite;
-  }
   .rail-bits {
     display: flex;
     flex-direction: column;
@@ -81,11 +74,6 @@ const { tag, file } = Astro.props;
     line-height: 1.8;
   }
   .rail-bits .rail-line { background: linear-gradient(transparent, var(--border)); margin-top: 8px; }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(var(--green-rgb) / 0.4); }
-    50%      { opacity: 0.45; box-shadow: 0 0 0 7px rgb(var(--green-rgb) / 0); }
-  }
 
   @media (max-width: 1280px) {
     .rail { display: none; }

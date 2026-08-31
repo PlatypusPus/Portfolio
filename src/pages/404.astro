@@ -2,6 +2,8 @@
 import Layout from "../layouts/Layout.astro";
 import Rails from "../components/Rails.astro";
 
+export const prerender = true;
+
 // Any page can be the first page on this site, so a wrong URL should still put
 // someone somewhere useful rather than dead-ending them.
 const ROUTES = [

@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 
-import vercel from '@astrojs/vercel';
+import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,15 +9,21 @@ export default defineConfig({
   // Change this if the production domain is not shov.in.
   site: 'https://shov.in',
 
-  // On-demand rendering so middleware runs in production. Prerendered pages are
-  // served straight off the CDN and never reach middleware, which would make
-  // `curl shov.in` impossible. Pages are cached at the edge instead (see
-  // src/middleware.ts), so this costs a cold start, not per-request work.
+  // On-demand rendering so middleware runs in production. Most pages opt back
+  // into prerendering (`export const prerender = true`) and are served straight
+  // off Cloudflare's edge; only `/`, `/contact`, `/tui` and `/api/contact` run
+  // as a Worker.
   output: 'server',
+
+  // No Astro sessions here — skip the KV namespace the adapter would otherwise
+  // require for its default session store.
+  session: false,
 
   // ponytail: dev only — Astro derives scoped-style ids from file path, so edits
   // reuse the same cache key and the browser serves stale CSS. no-store fixes it.
   vite: { server: { headers: { 'cache-control': 'no-store' } } },
 
-  adapter: vercel(),
+  // The only images are two fixed-size avatar renders. Optimise them at build
+  // time so production needs no Cloudflare Images binding or runtime transforms.
+  adapter: cloudflare({ imageService: 'compile' }),
 });

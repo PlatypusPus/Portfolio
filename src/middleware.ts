@@ -1,5 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
-import { isTerminalClient, renderTui } from './lib/tui';
+import { isTerminalClient, TUI } from './lib/tui';
 
 // `curl shov.in` should return the portfolio, not a wall of HTML tags.
 // Browsers are untouched and fall straight through to the normal render.
@@ -8,10 +8,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Only the bare site root. `curl shov.in/about` is a page request; hijacking
   // every route would break anyone scripting against the HTML on purpose.
-  const isRoot = context.url.pathname === '/' || context.url.pathname === '';
+  const isRoot = context.url.pathname === '/';
 
   if (isRoot && isTerminalClient(ua)) {
-    return new Response(renderTui(), {
+    return new Response(TUI, {
       status: 200,
       headers: {
         'content-type': 'text/plain; charset=utf-8',

@@ -46,7 +46,7 @@ function heading(label: string): string[] {
   return ["", `${C.amber}${label}${C.reset}`, rule()];
 }
 
-function entries(rows: typeof TALKS, color = false): string[] {
+function entries(rows: typeof TALKS): string[] {
   const out: string[] = [];
   for (const r of rows) {
     out.push(`  ${C.green}${r.title}${C.reset}`);
@@ -115,6 +115,9 @@ export function renderTui(): string {
 
   return L.join("\n") + "\n";
 }
+
+/** Built once — the profile data is static for the life of the process. */
+export const TUI = renderTui();
 
 /** True when the request came from a terminal HTTP client rather than a browser. */
 export function isTerminalClient(userAgent: string | null): boolean {

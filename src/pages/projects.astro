@@ -3,6 +3,10 @@ import Layout from "../layouts/Layout.astro";
 import Rails from "../components/Rails.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import { PROJECTS } from "../data/projects";
+
+// Static content — prerender to the edge instead of running the Worker. The
+// `curl` terminal render is only wired to `/`, so nothing here needs middleware.
+export const prerender = true;
 ---
 
 <Layout

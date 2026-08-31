@@ -1,18 +1,9 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 import { CONTACT } from '../../data/profile';
+import { LIMITS } from '../../data/contact-limits';
 
 export const prerender = false;
-
-export const LIMITS = {
-  name: { min: 2, max: 80 },
-  email: { max: 160 },
-  message: { min: 15, max: 2000 },
-  /** Most links a genuine message carries. Above this it is almost always spam. */
-  links: 3,
-  /** Between two sends from the same browser. */
-  cooldownMs: 60_000,
-} as const;
 
 const COOLDOWN_COOKIE = 'shovin_contact_at';
 
@@ -29,11 +20,13 @@ const looksLikeEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 const countLinks = (v: string) => (v.match(/https?:\/\/|www\./gi) || []).length;
 
 // ponytail: per-instance memory, so it resets on a cold start and is not shared
-// across serverless instances. It is a second line behind the cookie, not the
-// real defence. A KV store or Turnstile is the upgrade if this ever gets abused.
+// across Worker isolates. It is a second line behind the cookie, not the real
+// defence. A KV store or Turnstile is the upgrade if this ever gets abused.
+// Bounded so a long-lived isolate under spam can't grow it without limit.
 const seenByIp = new Map<string, number>();
+const SEEN_MAX = 5_000;
 
-export const POST: APIRoute = async ({ request, clientAddress, cookies }) => {
+export const POST: APIRoute = async ({ request, clientAddress, cookies, locals }) => {
   let name = '', email = '', message = '', honeypot = '';
 
   const bail = (error: string, keepDraft = true) => {
@@ -77,8 +70,12 @@ export const POST: APIRoute = async ({ request, clientAddress, cookies }) => {
   );
   if (lastSend && now - lastSend < LIMITS.cooldownMs) return bail('rate');
 
-  const apiKey = import.meta.env.RESEND_API_KEY;
-  const from = import.meta.env.CONTACT_FROM || 'shov.in <onboarding@resend.dev>';
+  // On Cloudflare, Worker secrets live on locals.runtime.env, not import.meta.env
+  // (which is build-time only). Fall back to import.meta.env so `astro dev`
+  // without the platform proxy, and other adapters, still work.
+  const env = (locals as any).runtime?.env ?? import.meta.env;
+  const apiKey = env.RESEND_API_KEY;
+  const from = env.CONTACT_FROM || 'shov.in <onboarding@resend.dev>';
   if (!apiKey) {
     console.error('[contact] RESEND_API_KEY is not set');
     return bail('send');
@@ -106,6 +103,7 @@ export const POST: APIRoute = async ({ request, clientAddress, cookies }) => {
     return bail('send');
   }
 
+  if (seenByIp.size >= SEEN_MAX) seenByIp.clear();
   seenByIp.set(clientAddress || 'unknown', now);
   cookies.set(COOLDOWN_COOKIE, String(now), {
     path: '/',

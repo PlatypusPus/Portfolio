@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "codex-grid-background",
+        "value": "*",
+        "files": [
+          "src/layouts/Layout.astro"
+        ],
+        "createdAt": "2026-08-08T16:42:54.725Z",
+        "reason": "User confirmed the panel grid backdrop is intentional: terminal/CRT texture at 0.025 alpha, part of the binding Arch-terminal identity recorded in PRODUCT.md"
+      }
+    ]
+  }
+}

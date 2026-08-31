@@ -1,181 +1,523 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Rails from "../components/Rails.astro";
+import { Image } from "astro:assets";
+import shovin from "../assets/shovin.png";
+import { COLORS } from "../tokens";
+import {
+  IDENTITY, CONTACT, NEOFETCH, TRAITS, STACK,
+  EDUCATION, TALKS, ACHIEVEMENTS, POSITIONS,
+} from "../data/profile";
+import type { LogKind, TimelineEntry } from "../data/profile";
 
-// ── What you're up to right now ──
-const CURRENTLY = [
-  { key: "building", value: "full-stack apps & in-browser AI experiments" },
-  { key: "exploring", value: "self-hosting, homelabs & Linux tinkering" },
-  { key: "into", value: "open source and the FOSS community" },
-  { key: "playing", value: "way too many games" },
+// Real neofetch prints your terminal's colour blocks. These are the actual site
+// tokens, darkest to lightest, so the row can never drift from the palette.
+const SWATCHES = [
+  "bg", "border", "text-faint", "border-strong",
+  "text-dim", "text", "green", "amber",
+] as const;
+
+const MONTHS = "jan feb mar apr may jun jul aug sep oct nov dec".split(" ");
+
+/**
+ * Sortable start date from a free-text period.
+ * "Feb 2026" -> 2026.02, "Oct 2024 - Apr 2025" -> 2024.10, "2023 - 2027" -> 2023.
+ * ponytail: parses the strings already in profile.ts rather than adding a real
+ * date field to every entry. Add one only if the log ever needs month grouping.
+ */
+function startKey(period: string): number {
+  const m = period.match(/([A-Za-z]{3,})\s+(\d{4})/);
+  if (m) {
+    const i = MONTHS.indexOf(m[1].slice(0, 3).toLowerCase());
+    return Number(m[2]) + (i < 0 ? 0 : (i + 1) / 100);
+  }
+  const y = period.match(/\d{4}/);
+  return y ? Number(y[0]) : 0;
+}
+
+if (import.meta.env.DEV) {
+  console.assert(startKey("Feb 2026") === 2026.02, "startKey: month + year");
+  console.assert(startKey("Oct 2024 - Apr 2025") === 2024.1, "startKey: takes the start");
+  console.assert(startKey("2025 - Present") === 2025, "startKey: bare year");
+  console.assert(startKey("nope") === 0, "startKey: no date at all");
+}
+
+// One merged, filterable log instead of four near-identical lists. The list an
+// entry lives in gives it a default tag; an entry can override it, because
+// ACHIEVEMENTS holds a role, a contribution and an actual award.
+const tag = (rows: TimelineEntry[], fallback: LogKind) =>
+  rows.map((e) => ({ ...e, kind: e.kind ?? fallback }));
+
+const LOG = [
+  ...tag(POSITIONS, "role"),
+  ...tag(EDUCATION, "edu"),
+  ...tag(TALKS, "talk"),
+  ...tag(ACHIEVEMENTS, "work"),
+].sort((a, b) => startKey(b.period) - startKey(a.period));
+
+const count = (k: LogKind) => LOG.filter((e) => e.kind === k).length;
+const FILTERS = [
+  { id: "all", label: "all", n: LOG.length },
+  { id: "talk", label: "talks", n: count("talk") },
+  { id: "role", label: "roles", n: count("role") },
+  { id: "work", label: "work", n: count("work") },
+  { id: "award", label: "awards", n: count("award") },
+  { id: "edu", label: "edu", n: count("edu") },
 ];
 
-const INTERESTS = ["Gaming", "FOSS", "Self-hosting", "Linux", "3D / Blender", "Hackathons"];
+const now = POSITIONS[0];
+const study = EDUCATION[0];
+
+// Counted from the data above, never hand-written.
+const TALLY = [
+  { n: String(TALKS.length), label: "talks & workshops led" },
+  { n: String(STACK[0].items.length), label: "languages shipped in" },
+];
 ---
 
-<Layout title="shov.in — about">
-  <section class="hero">
+<Layout
+  title="shov.in — about"
+  description="Shovin Jeson Dsouza — 4th-year CS and Data Science student at SJEC, Mangalore. What he builds, where he has spoken, and the long version of how he got here."
+>
+  <Rails tag="[ ABOUT ]" file="~/portfolio/about.astro" />
+
+  <section class="about">
+    <!-- ── neofetch ── -->
     <div class="panel">
-      <span class="corner tl"></span>
-      <span class="corner tr"></span>
-      <span class="corner bl"></span>
-      <span class="corner br"></span>
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
       <span class="panel-label">~/about</span>
 
-      <p class="cmd">$ cat about.md</p>
+      <p class="cmd">$ neofetch</p>
 
-      <h1 class="page-title">about me</h1>
+      <div class="nf">
+        <figure class="nf-avatar">
+          <Image src={shovin} alt="Shovin Jeson Dsouza" width={460} densities={[1, 2]} />
+          <div class="swatches">
+            {SWATCHES.map((k) => (
+              <span style={`background:${COLORS[k]}`} title={`--${k} · ${COLORS[k]}`}></span>
+            ))}
+          </div>
+        </figure>
 
+        <div class="nf-info">
+          <h1 class="nf-title">shovin@portfolio</h1>
+          <div class="nf-sep">───────────────────────────────</div>
+          {NEOFETCH.map((row) => (
+            <div class="nf-row">
+              <span class="nf-k">{row.k}</span><span class="nf-colon">: </span>{row.v}
+              {row.cursor && <span class="cursor"></span>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <!-- ── readme ── -->
+    <div class="panel">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <h2 class="panel-label">~/readme</h2>
+
+      <h2 class="readme-title">#About Me</h2>
       <div class="prose">
         <p>
-          Hey — I'm Shovin, a Computer Science &amp; Data Science engineering
-          student based in Mangalore. I got into tech the way a lot of people my
-          age did: messing with Minecraft. Customizing server plugins turned
-          "how do I change this?" into "how does any of this actually work?" —
-          and I never really stopped asking.
+          I'm a 4th-year Computer Science &amp; Data-Science engineering student
+          who builds fun, occasionally useful tools for friends, family, and
+          anyone curious enough to ask. These days I build the whole thing
+          myself: infrastructure, backend and frontend.
         </p>
         <p>
-          These days I build full-stack applications and like getting my hands
-          dirty across the stack — from real-time chat apps to in-browser AI
-          tools. I'm a big believer in open source and self-hosting: I'd rather
-          understand and own my infrastructure than rent a black box.
-        </p>
-        <p>
-          Outside of shipping code, I spend a lot of time with community — as
-          Vice President of the Sceptix Club, organizing hackathons like
-          HackToFuture, and running workshops on everything from Linux to Gitea.
-          Teaching something is still the best way I know to actually learn it.
+          I work across Python, FastAPI, React, Docker, and Kubernetes, with a
+          growing interest in RAG pipelines and vector search. I'm currently VP
+          of The Sceptix Club at St. Joseph Engineering College, Mangaluru. And
+          honestly, I'd still rather be debugging at 2 AM than asleep.
         </p>
       </div>
     </div>
-  </section>
 
-  <section class="block">
+    <!-- ── uptime ── -->
     <div class="panel">
-      <span class="corner tl"></span>
-      <span class="corner tr"></span>
-      <span class="corner bl"></span>
-      <span class="corner br"></span>
-      <span class="panel-label">~/currently</span>
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <h2 class="panel-label">~/uptime</h2>
 
       <p class="cmd">$ uptime</p>
 
-      <ul class="current-list">
-        {CURRENTLY.map((row) => (
-          <li>
-            <span class="ck">{row.key}</span>
-            <span class="cv">{row.value}</span>
-          </li>
+      <dl class="up">
+        <div class="up-row">
+          <dt>up</dt>
+          <dd>{study.period.split(" - ")[0]} → now · {study.title}, {study.place}</dd>
+        </div>
+        <div class="up-row">
+          <dt>running</dt>
+          <dd>{now.title} · {now.place}</dd>
+        </div>
+        <div class="up-row">
+          <dt>status</dt>
+          <dd class="up-live"><span class="dot"></span>{IDENTITY.status}</dd>
+        </div>
+      </dl>
+
+      <div class="tally">
+        {TALLY.map((t) => (
+          <div class="tally-cell">
+            <span class="tally-n">{t.n}</span>
+            <span class="tally-l">{t.label}</span>
+          </div>
         ))}
-      </ul>
-    </div>
-  </section>
-
-  <section class="block">
-    <div class="panel">
-      <span class="corner tl"></span>
-      <span class="corner tr"></span>
-      <span class="corner bl"></span>
-      <span class="corner br"></span>
-      <span class="panel-label">~/interests</span>
-
-      <p class="cmd">$ ls ~/interests</p>
-
-      <div class="interests">
-        {INTERESTS.map((it) => <span>{it}</span>)}
       </div>
+    </div>
 
+    <!-- ── log ── -->
+    <div class="panel">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <h2 class="panel-label">~/log</h2>
+
+      <p class="cmd">$ journalctl --user -u shovin --reverse</p>
+
+      <!-- Radios rather than buttons: the filter needs no script, so it cannot
+           break on a client-side navigation, and arrow keys work for free. -->
+      <div class="logwrap">
+        <div class="filters" role="group" aria-label="Filter the log">
+          {FILTERS.map((f) => (
+            <Fragment>
+              <input
+                class="fr"
+                type="radio"
+                name="logf"
+                id={`f-${f.id}`}
+                checked={f.id === "all"}
+              />
+              <label for={`f-${f.id}`}>{f.label}<span class="fc">{f.n}</span></label>
+            </Fragment>
+          ))}
+        </div>
+
+        <ol class="log">
+          {LOG.map((e) => (
+            <li data-kind={e.kind}>
+              <span class="lk">{e.kind}</span>
+              <div class="lb">
+                <div class="lh">
+                  <h3 class="lt">{e.title}</h3>
+                  <span class="lp">{e.period}</span>
+                </div>
+                <p class="lpl">{e.place}</p>
+                {e.detail && <p class="ld">{e.detail}</p>}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+
+    <!-- ── traits ── -->
+    <div class="panel">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <h2 class="panel-label">~/traits</h2>
+
+      <p class="cmd">$ cat traits.txt | sort -R</p>
+      <div class="traits">
+        {TRAITS.map((t) => <span>› {t}</span>)}
+      </div>
+    </div>
+
+    <!-- ── outro ── -->
+    <div class="panel">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+      <h2 class="panel-label">~/exit</h2>
+
+      <p class="cmd">$ echo $NEXT</p>
       <p class="outro">
-        Want to build something or just talk shop?
-        <a href="/contact">→ get in touch</a>
+        Looking for a Summer 2026 internship, and always up for talking about
+        self-hosting, Linux, or whatever you're building.
       </p>
+      <div class="outro-actions">
+        <a class="btn-primary" href="/contact">$ mail shovin</a>
+        <a class="btn-ghost" href={CONTACT.resume} target="_blank" rel="noopener">
+          $ cat resume.pdf <span class="arr">↗</span>
+        </a>
+      </div>
     </div>
   </section>
 </Layout>
 
 <style>
-  .hero { padding: 32px 0; }
-  .block { padding: 0 0 32px; }
-
-  .cmd {
-    font-size: 0.95rem;
-    color: var(--text-dim);
-    margin-bottom: 24px;
-  }
-
-  .page-title {
-    font-size: 2rem;
-    color: var(--green);
-    letter-spacing: -0.5px;
-  }
-
-  .prose { margin-top: 24px; max-width: 680px; }
-  .prose p {
-    font-size: 1rem;
-    line-height: 1.85;
-    color: var(--text);
-    margin-bottom: 18px;
-  }
-  .prose p:last-child { margin-bottom: 0; }
-
-  /* currently */
-  .current-list {
-    list-style: none;
+  .about {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-  }
-  .current-list li {
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .ck {
-    flex-shrink: 0;
-    width: 110px;
-    color: var(--green);
-    font-size: 0.95rem;
-  }
-  .cv {
-    color: var(--text);
-    font-size: 0.95rem;
+    gap: 38px;
+    padding: 16px 0 32px;
   }
 
-  /* interests */
-  .interests {
+  .cmd {
+    font-size: var(--fs-body);
+    color: var(--text-dim);
+    margin-bottom: 28px;
+  }
+
+  /* ── neofetch ── */
+  .nf {
+    display: flex;
+    gap: 42px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .nf-avatar { flex-shrink: 0; margin: 0; }
+  .nf-avatar img {
+    display: block;
+    width: 230px;
+    height: 230px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    filter: grayscale(0.2) contrast(1.05);
+  }
+
+  /* The spans had no dimensions, so this row rendered 230x0 — invisible.
+     It is real neofetch's colour bar: the site's own tokens, dark to light. */
+  .swatches {
+    display: flex;
+    margin-top: 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .swatches span { flex: 1; height: 18px; }
+
+  .nf-info {
+    flex: 1;
+    /* a bare 300px minimum pushed this block 41px past a 360px viewport — the
+       worst single overflow on the site, and independent of the navbar one */
+    min-width: min(300px, 100%);
+    font-size: var(--fs-body);
+    line-height: 1.95;
+  }
+  .nf-title {
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-title);
+    font-weight: 400;
+    color: var(--green);
+    line-height: 1.4;
+    text-shadow: 0 0 24px rgb(var(--green-rgb) / 0.3);
+  }
+  .nf-sep { color: var(--text-faint); margin: 4px 0 14px; overflow: hidden; white-space: nowrap; }
+  .nf-row { color: var(--text); }
+  .nf-k {
+    color: var(--amber);
+    width: 118px;
+    display: inline-block;
+  }
+  .nf-colon { color: var(--text-dim); }
+
+  /* ── readme ── */
+  .readme-title {
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-title);
+    font-weight: 400;
+    color: var(--green);
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+  .prose { display: flex; flex-direction: column; gap: 16px; max-width: var(--measure); }
+  .prose p {
+    font-size: var(--fs-body);
+    line-height: 1.85;
+    color: var(--text);
+    margin: 0;
+  }
+
+  /* ── uptime ── */
+  .up { display: flex; flex-direction: column; gap: 10px; }
+  .up-row { display: flex; gap: 16px; font-size: var(--fs-body); line-height: 1.7; }
+  .up-row dt { color: var(--amber); width: 92px; flex-shrink: 0; }
+  .up-row dd { color: var(--text); margin: 0; min-width: 0; }
+  .up-live { display: flex; align-items: center; gap: 11px; color: var(--green); }
+
+  /* flex, not an auto-fit grid: with two cells the grid stretched each one to
+     half the panel and left the short labels swimming in empty space */
+  .tally {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px 56px;
+    margin-top: 34px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+  }
+  .tally-cell { display: flex; flex-direction: column; gap: 8px; }
+  .tally-n {
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-title);
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--green);
+  }
+  .tally-l { font-size: var(--fs-meta); color: var(--text-dim); line-height: 1.5; }
+
+  /* ── log ── */
+  .logwrap { position: relative; }
+
+  .filters {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-bottom: 26px;
   }
-  .interests span {
-    font-size: 0.85rem;
-    color: var(--text);
-    padding: 5px 12px;
-    border: 1px solid var(--border);
+  /* out of flow, so the flex gap does not reserve space for them */
+  .fr { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+  .filters label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--border-strong);
     border-radius: 5px;
-    transition: border-color 0.15s, color 0.15s;
+    font-size: var(--fs-meta);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
   }
-  .interests span:hover {
+  .filters label:hover { border-color: var(--green); color: var(--green); }
+  .fr:checked + label {
     border-color: var(--green);
     color: var(--green);
+    background: rgb(var(--green-rgb) / 0.07);
+  }
+  .fr:focus-visible + label { outline: 2px solid var(--green); outline-offset: 2px; }
+  .fc { color: var(--text-faint); font-variant-numeric: tabular-nums; }
+  .fr:checked + label .fc { color: var(--green); }
+
+  .log {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    margin: 0;
+    padding: 0;
+  }
+  .log > li {
+    display: grid;
+    grid-template-columns: 68px 1fr;
+    gap: 18px;
+    padding-left: 4px;
   }
 
-  .outro {
-    margin-top: 28px;
-    font-size: 0.95rem;
+  .logwrap:has(#f-talk:checked)  .log > li:not([data-kind="talk"]),
+  .logwrap:has(#f-role:checked)  .log > li:not([data-kind="role"]),
+  .logwrap:has(#f-work:checked)  .log > li:not([data-kind="work"]),
+  .logwrap:has(#f-award:checked) .log > li:not([data-kind="award"]),
+  .logwrap:has(#f-edu:checked)   .log > li:not([data-kind="edu"]) { display: none; }
+
+  .lk {
+    align-self: start;
+    justify-self: start;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: var(--fs-meta);
+    line-height: 1.5;
     color: var(--text-dim);
   }
-  .outro a {
-    color: var(--green);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.15s;
-    margin-left: 6px;
-  }
-  .outro a:hover { border-bottom-color: var(--green); }
+  li[data-kind="talk"] .lk { color: var(--green); border-color: rgb(var(--green-rgb) / 0.45); }
+  li[data-kind="award"] .lk { color: var(--amber); border-color: var(--amber); }
+  li[data-kind="work"] .lk { color: var(--text-bright); border-color: var(--border-strong); }
+  li[data-kind="role"] .lk { color: var(--text-bright); border-color: var(--border-strong); }
 
-  @media (max-width: 540px) {
-    .current-list li { flex-direction: column; gap: 4px; }
-    .ck { width: auto; }
+  .lb { min-width: 0; }
+  .lh {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .lt {
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-meta);
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .lp { font-size: var(--fs-meta); color: var(--text-dim); flex-shrink: 0; }
+  .lpl { font-size: var(--fs-body); color: var(--green); margin-top: 4px; }
+  .ld {
+    font-size: var(--fs-body);
+    line-height: 1.65;
+    color: var(--text-dim);
+    margin-top: 8px;
+    max-width: var(--measure);
+  }
+
+  /* ── traits ── */
+  .traits { display: flex; flex-wrap: wrap; gap: 10px; }
+  .traits span {
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: var(--fs-meta);
+    color: var(--text);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .traits span:hover { border-color: var(--green); color: var(--green); }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse-dot 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(var(--green-rgb) / 0.4); }
+    50%      { opacity: 0.45; box-shadow: 0 0 0 7px rgb(var(--green-rgb) / 0); }
+  }
+
+  /* ── outro ── */
+  .outro {
+    font-size: var(--fs-lead);
+    line-height: 1.8;
+    color: var(--text);
+    max-width: var(--measure);
+  }
+  .outro-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .btn-primary,
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: var(--fs-body);
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .btn-primary { border: 1px solid var(--green); color: var(--green); }
+  .btn-primary:hover { background: var(--green); color: var(--bg); }
+  .btn-ghost { border: 1px solid var(--border); color: var(--text); }
+  .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+  .arr { opacity: 0.7; }
+
+  @media (max-width: 600px) {
+    .nf-title { font-size: var(--fs-body); }
+    .readme-title { font-size: var(--fs-body); }
+    /* Hanging indent: the key sits flush left and wrapped value lines align under
+       the value column instead of running back under the key. Values like
+       "Arch Linux x86_64 (btw)" need two lines at this width.
+       text-indent inherits, so the key has to opt out or its own text gets
+       dragged 96px left and out of its box. */
+    .nf-row { padding-left: 96px; text-indent: -96px; }
+    .nf-k { width: 88px; text-indent: 0; }
+
+    /* 68px of tag column plus the gap leaves too little for a title to break into */
+    .log > li { grid-template-columns: 1fr; gap: 10px; }
+    .up-row { flex-direction: column; gap: 2px; }
+    .up-row dt { width: auto; }
   }
 </style>

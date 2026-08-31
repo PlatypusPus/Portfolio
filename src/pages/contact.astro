@@ -1,8 +1,44 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Rails from "../components/Rails.astro";
+import { CONTACT } from "../data/profile";
+import { LIMITS } from "./api/contact";
+
+export const prerender = false;
+
+const MAX_MESSAGE = LIMITS.message.max;
+const MIN_MESSAGE = LIMITS.message.min;
+const p = Astro.url.searchParams;
+
+const sent = p.get("sent") === "1";
+const draft = {
+  name: (p.get("d_name") ?? "").slice(0, 80),
+  email: (p.get("d_email") ?? "").slice(0, 160),
+  message: (p.get("d_message") ?? "").slice(0, MAX_MESSAGE),
+};
+
+const ERRORS: Record<string, string> = {
+  missing: "Fill in your name, your email, and a message.",
+  name: `Your name needs at least ${LIMITS.name.min} characters.`,
+  email: "That email address doesn't look right. Check it and send again.",
+  short: `Tell me a bit more. Messages need at least ${MIN_MESSAGE} characters.`,
+  links: `That's more than ${LIMITS.links} links. Trim a few and it'll go through.`,
+  rate: "You just sent one. Give it a minute before the next.",
+  send: "The message didn't go through. Nothing was lost, try again, or email me directly at " + CONTACT.email + ".",
+};
+const errorKey = p.get("error");
+const errorMessage = errorKey ? ERRORS[errorKey] : null;
+// Which single field to mark, when the error points at one.
+const badEmail = errorKey === "email";
+const badName = errorKey === "name";
+const badMessage = errorKey === "short" || errorKey === "links";
 ---
 
-<Layout title="shov.in — contact">
+<Layout
+  title="shov.in — contact"
+  description="Reach Shovin Jeson Dsouza by email, GitHub, LinkedIn, or Discord, or send a message straight from the site."
+>
+  <Rails tag="[ CONTACT ]" file="~/portfolio/contact.astro" />
   <section class="hero">
     <div class="panel">
       <span class="corner tl"></span>
@@ -12,35 +48,198 @@ import Layout from "../layouts/Layout.astro";
       <span class="panel-label">~/contact</span>
 
       <h1 class="page-title">contact</h1>
-      <p class="page-body">Reach out — always happy to talk.</p>
+      <p class="page-body">Reach out. Always happy to talk.</p>
 
       <ul class="contact-list">
         <li>
           <span class="key">email</span>
-          <a href="mailto:shovindsouza27@gmail.com">shovindsouza27@gmail.com</a>
+          <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
         </li>
         <li>
           <span class="key">github</span>
-          <a href="https://github.com/" target="_blank" rel="noopener">github.com/shovin</a>
+          <a href={CONTACT.github.url} target="_blank" rel="noopener">
+            github.com/{CONTACT.github.label}
+          </a>
+        </li>
+        <li>
+          <span class="key">linkedin</span>
+          <a href={CONTACT.linkedin.url} target="_blank" rel="noopener">
+            linkedin.com/in/{CONTACT.linkedin.label}
+          </a>
+        </li>
+        <li>
+          <span class="key">discord</span>
+          <span class="dval">{CONTACT.discord.label}</span>
         </li>
       </ul>
     </div>
   </section>
+
+  <section class="form-section">
+    <div class="panel">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+      <h2 class="panel-label">~/compose</h2>
+
+      <p class="cmd" id="form">$ mail -s "hello" shovin</p>
+
+      {sent && (
+        <p class="alert ok" role="status">
+          <span class="alert-tag">sent:</span> Message delivered. I'll reply to the
+          address you gave, usually within a day or two.
+        </p>
+      )}
+
+      {errorMessage && (
+        <p class="alert err" role="alert">
+          <span class="alert-tag">error:</span> {errorMessage}
+        </p>
+      )}
+
+      <!-- data-astro-reload: let this POST and its 303 redirect happen natively
+           rather than through the client router. -->
+      <form method="POST" action="/api/contact" class="cform" novalidate data-astro-reload>
+        <div class="field">
+          <label for="name">name</label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            maxlength="80"
+            required
+            autocomplete="name"
+            minlength={LIMITS.name.min}
+            value={draft.name}
+            aria-invalid={badName ? "true" : undefined}
+            aria-describedby={badName ? "name-err" : undefined}
+          />
+          {badName && <p class="field-err" id="name-err">At least {LIMITS.name.min} characters.</p>}
+        </div>
+
+        <div class="field">
+          <label for="email">email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            maxlength="160"
+            required
+            autocomplete="email"
+            value={draft.email}
+            aria-invalid={badEmail ? "true" : undefined}
+            aria-describedby={badEmail ? "email-err" : undefined}
+          />
+          {badEmail && <p class="field-err" id="email-err">Check this address.</p>}
+        </div>
+
+        <div class="field">
+          <label for="message">message</label>
+          <textarea
+            id="message"
+            name="message"
+            rows="6"
+            minlength={MIN_MESSAGE}
+            maxlength={MAX_MESSAGE}
+            required
+            dir="auto"
+            aria-describedby="msg-counter"
+            aria-invalid={badMessage ? "true" : undefined}
+          >{draft.message}</textarea>
+          <span class="counter" id="msg-counter" aria-live="polite">
+            <span id="msg-used">{draft.message.length}</span> / {MAX_MESSAGE}
+          </span>
+        </div>
+
+        <!-- Bots fill every field they find. Real people never see this one. -->
+        <div class="hp" aria-hidden="true">
+          <label for="company">company</label>
+          <input id="company" name="company" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <div class="form-foot">
+          <button type="submit" class="btn" id="send-btn" data-sent={sent ? "1" : undefined}>
+            {sent ? "$ sent ✓" : "$ send"}
+          </button>
+          <span class="note">Goes straight to my inbox. Nothing is stored on the site.</span>
+        </div>
+      </form>
+    </div>
+  </section>
 </Layout>
 
+<script is:inline define:vars={{ MAX_MESSAGE, MIN_MESSAGE }}>
+  const form = document.querySelector(".cform");
+  if (form) {
+    const ta = form.querySelector("textarea");
+    const used = document.getElementById("msg-used");
+    const counter = document.getElementById("msg-counter");
+    const btn = form.querySelector("button[type=submit]");
+
+    const sync = () => {
+      const n = ta.value.length;
+      used.textContent = n;
+      // amber as the ceiling approaches, and while still under the floor, so the
+      // limit is visible before the submit rather than only after it fails
+      counter.classList.toggle("near", n > MAX_MESSAGE - 200 || (n > 0 && n < MIN_MESSAGE));
+      counter.dataset.hint = n > 0 && n < MIN_MESSAGE ? `min ${MIN_MESSAGE}` : "";
+    };
+    ta.addEventListener("input", sync);
+    sync();
+
+    // The button is server-rendered as "$ sent" after a successful send. Typing
+    // again means a new message, so put it back rather than leaving a stale tick.
+    if (btn.dataset.sent === "1") {
+      const reset = () => {
+        delete btn.dataset.sent;
+        btn.textContent = "$ send";
+      };
+      form.addEventListener("input", reset, { once: true });
+    }
+
+    // novalidate is on the form so the browser does not swallow submit with its
+    // own bubble; validate here so the message is in the page, then guard the
+    // double-click that a slow send would otherwise allow.
+    form.addEventListener("submit", (e) => {
+      const missing = [...form.querySelectorAll("[required]")].find((el) => !el.value.trim());
+      if (missing) {
+        e.preventDefault();
+        missing.focus();
+        return;
+      }
+      if (ta.value.trim().length < MIN_MESSAGE) {
+        e.preventDefault();
+        ta.focus();
+        counter.classList.add("near");
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = "$ sending...";
+    });
+  }
+</script>
+
 <style>
-  .hero { padding: 32px 0; }
+  .hero { padding: 32px 0 0; }
+  .form-section { padding: 38px 0 32px; }
+
   .page-title {
-    font-size: 2rem;
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-title);
+    font-weight: 400;
+    line-height: 1.4;
     color: var(--green);
-    letter-spacing: -0.5px;
+    letter-spacing: 0;
   }
   .page-body {
-    font-size: 1.1rem;
+    font-size: var(--fs-lead);
     line-height: 1.8;
     color: var(--text);
     margin-top: 20px;
   }
+  .cmd { font-size: var(--fs-body); color: var(--text-dim); margin-bottom: 22px; }
+
   .contact-list {
     list-style: none;
     margin-top: 28px;
@@ -52,17 +251,137 @@ import Layout from "../layouts/Layout.astro";
     display: flex;
     align-items: baseline;
     gap: 16px;
-    font-size: 1.05rem;
+    font-size: var(--fs-body);
   }
   .key {
     color: var(--text-dim);
     min-width: 80px;
   }
   .contact-list a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     color: var(--green);
     text-decoration: none;
     border-bottom: 1px solid transparent;
     transition: border-color 0.15s;
+    /* addresses and URLs have no break opportunities of their own */
+    overflow-wrap: anywhere;
   }
   .contact-list a:hover { border-bottom-color: var(--green); }
+  .dval { color: var(--text); overflow-wrap: anywhere; }
+
+  /* An 80px label plus a 16px gap left too little for the value to break into. */
+  @media (max-width: 560px) {
+    .contact-list li { flex-direction: column; gap: 0; }
+    .key { min-width: 0; }
+  }
+
+  /* ── form ── */
+  .alert {
+    padding: 12px 14px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    font-size: var(--fs-body);
+    line-height: 1.6;
+    color: var(--text);
+    max-width: var(--measure);
+    overflow-wrap: anywhere;
+  }
+  .alert.err { border-color: var(--error); }
+  .alert.ok { border-color: var(--green); }
+  .alert.err .alert-tag { color: var(--error); }
+  .alert.ok .alert-tag { color: var(--green); }
+
+  .cform {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 620px;
+  }
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field label {
+    font-size: var(--fs-body);
+    color: var(--text-dim);
+  }
+  .field label::before { content: "$ "; color: var(--green); }
+
+  .cform input,
+  .cform textarea {
+    width: 100%;
+    background: var(--bg);
+    /* an input's boundary is the only thing identifying it as one, so it uses
+       the 3:1 border rather than the decorative hairline the panels use */
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: var(--fs-body);
+    line-height: 1.6;
+    padding: 12px 14px;
+  }
+  .cform textarea { resize: vertical; min-height: 140px; }
+  .cform input:focus,
+  .cform textarea:focus { border-color: var(--green); }
+  .cform [aria-invalid="true"] { border-color: var(--error); border-width: 2px; }
+  /* fires only after a real submit attempt, so nobody is scolded mid-typing */
+  .cform input:user-invalid,
+  .cform textarea:user-invalid { border-color: var(--error); border-width: 2px; }
+
+  .field-err { font-size: var(--fs-meta); color: var(--error); }
+
+  .counter {
+    align-self: flex-end;
+    font-size: var(--fs-meta);
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .counter.near { color: var(--amber); }
+  .counter[data-hint]:not([data-hint=""])::after {
+    content: " · " attr(data-hint);
+  }
+
+  .btn[data-sent="1"] {
+    border-color: var(--green);
+    color: var(--bg);
+    background: var(--green);
+  }
+
+  /* Off-screen rather than display:none - some bots skip hidden fields. */
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .form-foot {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    background: transparent;
+    border: 1px solid var(--green);
+    border-radius: 6px;
+    color: var(--green);
+    font-family: inherit;
+    font-size: var(--fs-body);
+    padding: 9px 18px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn:hover { background: var(--green); color: var(--bg); }
+  .btn:disabled {
+    opacity: 0.55;
+    border-color: var(--border-strong);
+    color: var(--text-dim);
+    background: transparent;
+  }
+  .note { font-size: var(--fs-meta); color: var(--text-dim); }
 </style>

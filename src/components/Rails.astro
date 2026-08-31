@@ -1,0 +1,93 @@
+---
+// Decorative fixed side rails (hidden under 1280px — needs gutter room)
+interface Props {
+  tag: string; // e.g. "[ HOME ]"
+  file: string; // e.g. "~/portfolio/index.astro"
+}
+const { tag, file } = Astro.props;
+---
+
+<div class="rail rail-left" aria-hidden="true">
+  <span class="rail-tag">{tag}</span>
+  <span class="rail-vert">{file}</span>
+  <span class="rail-foot"><span class="rail-line"></span>N 12°54'</span>
+</div>
+<div class="rail rail-right" aria-hidden="true">
+  <span class="rail-vert">est 2026</span>
+  <span class="rail-bits">00<br />01<br />10<br />11<span class="rail-line"></span></span>
+</div>
+
+<style>
+  .rail {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 128px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 34px 0;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .rail-left { left: 0; }
+  .rail-right { right: 0; }
+  /* Everything here is aria-hidden ambient texture, so it sits below the text
+     contrast floor on purpose — two steps of --text-faint / --border keep the
+     depth the rails had when these were one-off greys. */
+  .rail-vert {
+    writing-mode: vertical-rl;
+    font-size: var(--fs-meta);
+    letter-spacing: 0.42em;
+    color: var(--text-faint);
+  }
+  .rail-left .rail-vert { transform: rotate(180deg); }
+  .rail-tag {
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-meta);
+    font-weight: 400;
+    color: var(--border);
+    letter-spacing: 1px;
+  }
+  .rail-foot, .rail-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--fs-meta);
+    color: var(--border);
+  }
+  .rail-line {
+    width: 1px;
+    height: 70px;
+    background: linear-gradient(var(--border), transparent);
+  }
+  .rail-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse-dot 2.4s ease-in-out infinite;
+  }
+  .rail-bits {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--fs-meta);
+    color: var(--border);
+    text-align: center;
+    line-height: 1.8;
+  }
+  .rail-bits .rail-line { background: linear-gradient(transparent, var(--border)); margin-top: 8px; }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(var(--green-rgb) / 0.4); }
+    50%      { opacity: 0.45; box-shadow: 0 0 0 7px rgb(var(--green-rgb) / 0); }
+  }
+
+  @media (max-width: 1280px) {
+    .rail { display: none; }
+  }
+</style>

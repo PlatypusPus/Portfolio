@@ -1,10 +1,15 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Rails from "../components/Rails.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import { PROJECTS } from "../data/projects";
 ---
 
-<Layout title="shov.in — projects">
+<Layout
+  title="shov.in — projects"
+  description="Things Shovin Jeson Dsouza has built, with the repositories and live demos to go with them."
+>
+  <Rails tag="[ WORK ]" file="~/portfolio/projects.astro" />
   <section class="hero">
     <div class="panel">
       <span class="corner tl"></span>
@@ -14,6 +19,7 @@ import { PROJECTS } from "../data/projects";
       <span class="panel-label">~/projects</span>
 
       <p class="cmd">$ ls ~/projects</p>
+      <h1 class="page-title">projects</h1>
 
       <div class="grid">
         {PROJECTS.map((p) => <ProjectCard project={p} />)}
@@ -26,18 +32,22 @@ import { PROJECTS } from "../data/projects";
   .hero { padding: 32px 0; }
 
   .cmd {
-    font-size: 0.95rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+  .page-title {
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-title);
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--green);
     margin-bottom: 28px;
   }
 
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
     gap: 18px;
-  }
-
-  @media (max-width: 600px) {
-    .grid { grid-template-columns: 1fr; }
   }
 </style>

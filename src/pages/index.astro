@@ -1,106 +1,24 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Rails from "../components/Rails.astro";
 import { Image } from "astro:assets";
 import shovin from "../assets/shovin.png";
 import ProjectCard from "../components/ProjectCard.astro";
 import { PROJECTS } from "../data/projects";
+// The full timeline (education, talks, wins, roles) lives on /about now — the
+// home page ran four near-identical lists of it.
+import { IDENTITY, CONTACT, STACK, ACHIEVEMENTS } from "../data/profile";
 
-const BIO = `I'm a 4th year engineering student who likes to play games and build projects for fun. Started off customizing Minecraft plugins, ended up building scalable applications.`;
-const DISCORD = "mystic_mc";
+const BIO = IDENTITY.bio;
+const DISCORD = CONTACT.discord.label;
 const FEATURED = PROJECTS.slice(0, 3);
-
-// ── Edit with your real stack ──
-const STACK = [
-  { label: "languages", items: ["Python", "C", "JavaScript", "C#", "Java"] },
-  { label: "frameworks", items: ["React", "Node", "FastAPI", ".NET"] },
-  { label: "tools", items: ["Git", "Docker", "Linux", "Postgres"] },
-];
-
-// ── Edit with your real education ──
-const EDUCATION = [
-  {
-    title: "B.E. in Computer Engineering",
-    place: "St Joseph Engineering College, Mangalore",
-    period: "2023 — 2027",
-    detail: "Bachelors Of Engineering in Computer Science and Data Science",
-  },
-  {
-    title: "Pre University",
-    place: "St Aloysius Pre University College, Mangalore",
-    period: "2020 — 2023",
-    detail: "PCMC",
-  },
-];
-
-// ── Talks & workshops you've given (newest first) ──
-const TALKS = [
-  {
-    title: "Taking Control of your version control using Gitea",
-    place: "MangaloreFOSS, Niveus Solutions, Udupi",
-    period: "Feb 2026",
-    detail: "Delivered a technical session on self-hosting Gitea, covering Docker-based deployment, customization, repository mirroring, and the advantages of managing independent Git infrastructure.",
-  },
-  {
-    title: "Linux 101",
-    place: "SJEC",
-    period: "Dec 2025",
-    detail: "Co-facilitated a hands-on Linux workshop, introducing students to the Linux ecosystem, command-line fundamentals, file systems, permissions, and essential terminal operations.",
-  },
-  {
-    title: "Blender 101",
-    place: "SJEC",
-    period: "May 2025",
-    detail: "Facilitated a beginner-friendly Blender workshop, guiding first-year students through 3D modeling, modifiers, and basic animation by creating and animating a ninja blade.",
-  },
-  {
-    title: "CS50x Puzzle Day SJEC",
-    place: "SJEC",
-    period: "Apr 2025",
-    detail: "Designed and conducted an interactive Alternate Reality Game (ARG), introducing participants to cryptography concepts and guiding them through a multi-stage puzzle experience inspired by Harvard CS50x Puzzle Day.",
-  },
-];
-
-// ── Awards, wins, recognitions ──
-const ACHIEVEMENTS = [
-  {
-    title: "Lead Organizer for HackToFuture 4.0",
-    place: "SJEC",
-    period: "2026",
-    detail:
-      "Led the planning and execution of a national-level hackathon, coordinating logistics, volunteers, and event operations while attracting over 3,000 registrations from participants across India.",
-  },
-  {
-    title: "ArduPilot Mission Planner Software Contributor",
-    place: "SJEC × Kansas State University (USA)",
-    period: "Oct 2024 — Apr 2025",
-    detail: "Contributed to enhancing the ArduPilot Mission Planner software through an international collaboration between SJEC and Kansas State University. Implemented unit conversion improvements, telemetry enhancements, UI refinements, and gauge cluster updates, resulting in a more consistent and user-friendly mission planning experience.",
-  },
-  {
-    title: "Winner of GDSC Tech Winter Break",
-    place: "SJEC",
-    period: "Dec 2024",
-    detail: "",
-  },
-];
-
-// ── Edit with roles you've held ──
-const POSITIONS = [
-  {
-    title: "Vice President",
-    place: "The Sceptix Club",
-    period: "2025 — Present",
-    detail: "",
-  },
-  {
-    title: "Member",
-    place: "The Sceptix Club",
-    period: "2023 — 2024",
-    detail: "",
-  },
-];
 ---
 
-<Layout title="shov.in">
+<Layout
+  title="shov.in"
+  description="Shovin Jeson Dsouza — 4th year CS and Data Science student at SJEC, Mangalore. Projects, talks, and the things I self-host for fun."
+>
+  <Rails tag="[ HOME ]" file="~/portfolio/index.astro" />
   <section class="hero">
     <div class="panel">
       <span class="corner tl"></span>
@@ -164,7 +82,7 @@ const POSITIONS = [
       <span class="corner tr"></span>
       <span class="corner bl"></span>
       <span class="corner br"></span>
-      <span class="panel-label">~/stack</span>
+      <h2 class="panel-label">~/stack</h2>
 
       <p class="cmd">$ cat stack.txt</p>
 
@@ -187,7 +105,7 @@ const POSITIONS = [
       <span class="corner tr"></span>
       <span class="corner bl"></span>
       <span class="corner br"></span>
-      <span class="panel-label">~/projects</span>
+      <h2 class="panel-label">~/projects</h2>
 
       <div class="featured-head">
         <p class="cmd">$ ls ~/projects --favorite</p>
@@ -206,12 +124,15 @@ const POSITIONS = [
       <span class="corner tr"></span>
       <span class="corner bl"></span>
       <span class="corner br"></span>
-      <span class="panel-label">~/experience</span>
+      <h2 class="panel-label">~/highlights</h2>
 
-      <p class="cmd">$ cat positions.log</p>
+      <div class="featured-head">
+        <p class="cmd">$ head -3 highlights.log</p>
+        <a class="view-all" href="/about">full log <span class="arrow">↗</span></a>
+      </div>
 
       <div class="timeline">
-        {POSITIONS.map((item) => (
+        {ACHIEVEMENTS.slice(0, 3).map((item) => (
           <div class="tl-item">
             <span class="tl-dot"></span>
             <div class="tl-body">
@@ -228,128 +149,87 @@ const POSITIONS = [
     </div>
   </section>
 
-  <section class="timeline-section">
-    <div class="panel">
-      <span class="corner tl"></span>
-      <span class="corner tr"></span>
-      <span class="corner bl"></span>
-      <span class="corner br"></span>
-      <span class="panel-label">~/education</span>
-
-      <p class="cmd">$ cat education.log</p>
-
-      <div class="timeline">
-        {EDUCATION.map((item) => (
-          <div class="tl-item">
-            <span class="tl-dot"></span>
-            <div class="tl-body">
-              <div class="tl-head">
-                <h3 class="tl-title">{item.title}</h3>
-                <span class="tl-period">{item.period}</span>
-              </div>
-              <p class="tl-place">{item.place}</p>
-              {item.detail && <p class="tl-detail">{item.detail}</p>}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="timeline-section">
-    <div class="panel">
-      <span class="corner tl"></span>
-      <span class="corner tr"></span>
-      <span class="corner bl"></span>
-      <span class="corner br"></span>
-      <span class="panel-label">~/talks</span>
-
-      <p class="cmd">$ cat talks.log</p>
-
-      <div class="timeline">
-        {TALKS.map((item) => (
-          <div class="tl-item">
-            <span class="tl-dot"></span>
-            <div class="tl-body">
-              <div class="tl-head">
-                <h3 class="tl-title">{item.title}</h3>
-                <span class="tl-period">{item.period}</span>
-              </div>
-              <p class="tl-place">{item.place}</p>
-              {item.detail && <p class="tl-detail">{item.detail}</p>}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="timeline-section">
-    <div class="panel">
-      <span class="corner tl"></span>
-      <span class="corner tr"></span>
-      <span class="corner bl"></span>
-      <span class="corner br"></span>
-      <span class="panel-label">~/achievements</span>
-
-      <p class="cmd">$ cat achievements.log</p>
-
-      <div class="timeline">
-        {ACHIEVEMENTS.map((item) => (
-          <div class="tl-item">
-            <span class="tl-dot"></span>
-            <div class="tl-body">
-              <div class="tl-head">
-                <h3 class="tl-title">{item.title}</h3>
-                <span class="tl-period">{item.period}</span>
-              </div>
-              <p class="tl-place">{item.place}</p>
-              {item.detail && <p class="tl-detail">{item.detail}</p>}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
 </Layout>
 
-<script define:vars={{ BIO }}>
-  const CHAR_DELAY = 14;
-  const bio = document.getElementById("bio");
-  const cursor = document.getElementById("cursor");
-  const status = document.getElementById("status");
+<script is:inline define:vars={{ BIO }}>
+  (() => {
+    // Under client-side routing this script does not re-execute on every
+    // navigation, so binding directly to the elements would leave the bio blank
+    // and the status hidden when you come back to the home page. Everything
+    // hangs off astro:page-load instead, which fires on the first load and after
+    // every swap, and each step is guarded so it is safe to run repeatedly.
+    if (window.__homeInit) return;
+    window.__homeInit = true;
 
-  function start() {
-    let i = 0;
-    const timer = setInterval(() => {
-      bio.textContent = BIO.slice(0, ++i);
-      if (i >= BIO.length) {
-        clearInterval(timer);
-        cursor.classList.add("blink");
-        status.hidden = false;
-      }
-    }, CHAR_DELAY);
-  }
+    const CHAR_DELAY = 14;
+    let typer = null;
 
-  // wait for the Arch boot overlay to finish before typing
-  if (window.__booted) start();
-  else addEventListener("boot-complete", start, { once: true });
+    const fill = (bio, cursor, status) => {
+      bio.textContent = BIO;
+      cursor.classList.add("blink");
+      status.hidden = false;
+    };
 
-  const dc = document.querySelector(".copy-discord");
-  const tip = dc.querySelector(".tip");
-  dc.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(dc.dataset.user);
-      tip.textContent = "copied!";
-    } catch {
-      tip.textContent = dc.dataset.user;
-    }
-    dc.classList.add("show");
-    setTimeout(() => {
-      dc.classList.remove("show");
-      setTimeout(() => (tip.textContent = dc.dataset.user), 200);
-    }, 1100);
-  });
+    const typeBio = () => {
+      const bio = document.getElementById("bio");
+      const cursor = document.getElementById("cursor");
+      const status = document.getElementById("status");
+      if (!bio || !cursor || !status) return;      // not the home page
+      if (bio.dataset.done === "1") return;        // already handled this element
+      bio.dataset.done = "1";
+
+      // Type it once per session. Coming back to the home page a third time and
+      // waiting out the same 2.4s animation is a cost, not a delight.
+      let typedBefore = false;
+      try { typedBefore = sessionStorage.getItem("bioTyped") === "1"; } catch {}
+      if (typedBefore) return fill(bio, cursor, status);
+      try { sessionStorage.setItem("bioTyped", "1"); } catch {}
+
+      let i = 0;
+      clearInterval(typer);
+      typer = setInterval(() => {
+        // the node can be swapped out mid-type if you navigate away
+        if (!bio.isConnected) return clearInterval(typer);
+        bio.textContent = BIO.slice(0, ++i);
+        if (i >= BIO.length) {
+          clearInterval(typer);
+          cursor.classList.add("blink");
+          status.hidden = false;
+        }
+      }, CHAR_DELAY);
+    };
+
+    const bindCopyDiscord = () => {
+      const dc = document.querySelector(".copy-discord");
+      if (!dc || dc.dataset.bound === "1") return;
+      dc.dataset.bound = "1";
+      const tip = dc.querySelector(".tip");
+      dc.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(dc.dataset.user);
+          tip.textContent = "copied!";
+        } catch {
+          tip.textContent = dc.dataset.user;
+        }
+        dc.classList.add("show");
+        setTimeout(() => {
+          dc.classList.remove("show");
+          setTimeout(() => (tip.textContent = dc.dataset.user), 200);
+        }, 1100);
+      });
+    };
+
+    const onPage = () => {
+      bindCopyDiscord();
+      // wait for the Arch boot overlay to finish before typing
+      if (window.__booted) typeBio();
+      else addEventListener("boot-complete", typeBio, { once: true });
+    };
+
+    document.addEventListener("astro:page-load", onPage);
+    // astro:page-load may already have fired by the time this parses on a swap
+    if (document.readyState !== "loading") onPage();
+  })();
 </script>
 
 <style>
@@ -358,7 +238,7 @@ const POSITIONS = [
   /* ── Tech stack (home) ── */
   .stack { padding: 0 0 32px; }
   .stack .cmd {
-    font-size: 0.95rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     margin-bottom: 28px;
   }
@@ -375,7 +255,7 @@ const POSITIONS = [
   .stack-label {
     flex-shrink: 0;
     width: 110px;
-    font-size: 0.9rem;
+    font-size: var(--fs-body);
     color: var(--green);
   }
   .stack-items {
@@ -384,7 +264,7 @@ const POSITIONS = [
     gap: 8px;
   }
   .stack-items span {
-    font-size: 0.85rem;
+    font-size: var(--fs-meta);
     color: var(--text);
     padding: 5px 12px;
     border: 1px solid var(--border);
@@ -404,10 +284,12 @@ const POSITIONS = [
   /* ── Timeline (experience / education) ── */
   .timeline-section { padding: 0 0 32px; }
   .timeline-section .cmd {
-    font-size: 0.95rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     margin-bottom: 28px;
   }
+  /* .featured-head already carries the 28px, so the cmd inside it must not */
+  .featured-head .cmd { margin-bottom: 0; }
   .timeline {
     display: flex;
     flex-direction: column;
@@ -437,26 +319,28 @@ const POSITIONS = [
     flex-wrap: wrap;
   }
   .tl-title {
-    font-size: 1.05rem;
-    font-weight: 700;
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-meta);
+    font-weight: 400;
+    line-height: 1.6;
     color: var(--text);
   }
   .tl-period {
-    font-size: 0.8rem;
+    font-size: var(--fs-meta);
     color: var(--text-dim);
     flex-shrink: 0;
   }
   .tl-place {
-    font-size: 0.9rem;
+    font-size: var(--fs-body);
     color: var(--green);
     margin-top: 4px;
   }
   .tl-detail {
-    font-size: 0.9rem;
+    font-size: var(--fs-body);
     line-height: 1.65;
     color: var(--text-dim);
     margin-top: 8px;
-    max-width: 680px;
+    max-width: var(--measure);
   }
 
   /* ── Featured projects (home) ── */
@@ -470,26 +354,28 @@ const POSITIONS = [
     margin-bottom: 28px;
   }
   .featured .cmd {
-    font-size: 0.95rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
   }
   .view-all {
-    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: var(--fs-body);
     color: var(--green);
     text-decoration: none;
     border-bottom: 1px solid transparent;
     transition: border-color 0.15s;
   }
   .view-all:hover { border-bottom-color: var(--green); }
-  .view-all .arrow { font-size: 0.85rem; }
+  .view-all .arrow { font-size: var(--fs-meta); }
 
+  /* min() lets the track shrink below its ideal width instead of overflowing,
+     so the single-column breakpoint this used to need is gone. */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
     gap: 18px;
-  }
-  @media (max-width: 600px) {
-    .grid { grid-template-columns: 1fr; }
   }
 
   .profile {
@@ -517,38 +403,39 @@ const POSITIONS = [
   .avatar figcaption {
     margin-top: 8px;
     text-align: center;
-    font-size: 0.78rem;
+    font-size: var(--fs-meta);
     color: var(--text-dim);
   }
 
   .cmd-accent {
-    font-size: 0.95rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     margin-bottom: 32px;
     letter-spacing: 0.02em;
   }
 
   .name {
-    font-size: 3rem;
-    font-weight: 700;
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-display);
+    font-weight: 400;
     color: var(--green);
-    line-height: 1.1;
-    letter-spacing: -1px;
-    text-shadow: 0 0 24px rgba(0,255,65,0.25);
+    line-height: 1.4;
+    letter-spacing: 0;
+    text-shadow: 0 0 24px rgb(var(--green-rgb) / 0.25);
   }
 
   .role {
-    font-size: 1.1rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
     margin-top: 14px;
   }
 
   .bio {
-    font-size: 1.15rem;
+    font-size: var(--fs-lead);
     line-height: 1.8;
     color: var(--text);
     margin-top: 36px;
-    max-width: 680px;
+    max-width: 55ch;
     min-height: 4.5em;
   }
 
@@ -575,8 +462,9 @@ const POSITIONS = [
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    min-height: 44px;
     padding: 10px 20px;
-    font-size: 1rem;
+    font-size: var(--fs-body);
     color: var(--text);
     text-decoration: none;
     border: 1px solid var(--border);
@@ -586,16 +474,18 @@ const POSITIONS = [
   .resume:hover {
     border-color: var(--green);
     color: var(--green);
-    background: rgba(0, 255, 65, 0.05);
+    background: rgb(var(--green-rgb) / 0.05);
   }
   .resume-cmd { color: var(--green); }
-  .resume-arrow { font-size: 0.9rem; opacity: 0.7; }
+  .resume-arrow { font-size: var(--fs-body); opacity: 0.7; }
 
   .socials {
     display: flex;
     justify-content: center;
     gap: 10px;
-    width: 220px; /* match avatar width so icons center under the image */
+    /* matches the avatar width so the icons centre under the image, but yields
+       once the column is narrower than the avatar ever was */
+    width: min(220px, 100%);
   }
   .socials a,
   .socials button {
@@ -603,8 +493,8 @@ const POSITIONS = [
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     color: var(--text-dim);
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -616,7 +506,7 @@ const POSITIONS = [
   .socials button:hover {
     color: var(--green);
     border-color: var(--green);
-    background: rgba(0, 255, 65, 0.05);
+    background: rgb(var(--green-rgb) / 0.05);
   }
 
   /* username preview tooltip (all socials) */
@@ -626,7 +516,7 @@ const POSITIONS = [
     left: 50%;
     transform: translateX(-50%) translateY(4px);
     padding: 4px 10px;
-    font-size: 0.8rem;
+    font-size: var(--fs-meta);
     white-space: nowrap;
     color: var(--green);
     background: var(--bg);
@@ -649,7 +539,7 @@ const POSITIONS = [
     align-items: center;
     gap: 11px;
     margin-top: 40px;
-    font-size: 1rem;
+    font-size: var(--fs-body);
     color: var(--text-dim);
   }
   .dot {
@@ -661,8 +551,8 @@ const POSITIONS = [
   }
 
   @keyframes pulse-dot {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,65,0.4); }
-    50%      { opacity: 0.5; box-shadow: 0 0 0 6px rgba(0,255,65,0); }
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(var(--green-rgb) / 0.4); }
+    50%      { opacity: 0.5; box-shadow: 0 0 0 6px rgb(var(--green-rgb) / 0); }
   }
 
   @media (max-width: 760px) {
@@ -671,9 +561,11 @@ const POSITIONS = [
     .avatar img { width: 160px; height: 160px; }
   }
 
+  /* .panel padding used to be overridden here. It now lives fluid and global in
+     Layout.astro — scoped styles only reached this page's panels, which is why
+     every other route kept its desktop padding on a phone. */
   @media (max-width: 600px) {
-    .panel { padding: 40px 28px; }
-    .name { font-size: 2rem; }
-    .bio { font-size: 1rem; }
+    .name { font-size: var(--fs-title); }
+    .bio { font-size: var(--fs-body); }
   }
 </style>

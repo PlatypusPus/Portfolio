@@ -40,7 +40,7 @@ const { project: p } = Astro.props as { project: Project };
     padding: 22px 24px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.01);
+    background: var(--surface);
     transition: border-color 0.15s, transform 0.15s;
   }
   .card:hover {
@@ -55,18 +55,20 @@ const { project: p } = Astro.props as { project: Project };
   }
   .folder { color: var(--green); }
   .card-name {
-    font-size: 1.05rem;
-    font-weight: 700;
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-meta);
+    font-weight: 400;
+    line-height: 1.5;
     color: var(--green);
   }
   .card-year {
     margin-left: auto;
-    font-size: 0.78rem;
+    font-size: var(--fs-meta);
     color: var(--text-dim);
   }
 
   .card-desc {
-    font-size: 0.9rem;
+    font-size: var(--fs-body);
     line-height: 1.65;
     color: var(--text);
     margin-top: 12px;
@@ -80,7 +82,7 @@ const { project: p } = Astro.props as { project: Project };
     margin-top: 18px;
   }
   .card-tags span {
-    font-size: 0.72rem;
+    font-size: var(--fs-meta);
     color: var(--text-dim);
     padding: 3px 9px;
     border: 1px solid var(--border);
@@ -91,18 +93,21 @@ const { project: p } = Astro.props as { project: Project };
     display: flex;
     gap: 18px;
     margin-top: 18px;
-    padding-top: 16px;
+    padding-top: 4px;
     border-top: 1px solid var(--border);
   }
+  /* standalone row links, not links inside a sentence, so they carry a full tap
+     target; the negative block margin gives the padding back to the card */
   .card-links a {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.85rem;
+    min-height: 44px;
+    font-size: var(--fs-meta);
     color: var(--text-dim);
     text-decoration: none;
     transition: color 0.15s;
   }
   .card-links a:hover { color: var(--green); }
-  .card-links .arrow { font-size: 0.8rem; }
+  .card-links .arrow { font-size: var(--fs-meta); }
 </style>

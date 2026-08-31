@@ -1,0 +1,487 @@
+---
+// An actually-working terminal, not a decorative one. Every command reads from
+// src/data/profile.ts, so the terminal, the pages, and the `curl` response can
+// never tell three different stories.
+import {
+  IDENTITY, CONTACT, NEOFETCH, TRAITS, STACK,
+  EDUCATION, TALKS, ACHIEVEMENTS, POSITIONS,
+} from "../data/profile";
+import { PROJECTS } from "../data/projects";
+
+type Line = { t: string; c?: "green" | "amber" | "dim" | "err" };
+const L = (t: string, c?: Line["c"]): Line => ({ t, c });
+
+const pad = (s: string, n: number) => s.padEnd(n);
+
+const timeline = (rows: typeof TALKS): Line[] =>
+  rows.flatMap((r) => [
+    L(`  ${r.title}`, "green"),
+    L(`  ${r.place}  ·  ${r.period}`, "dim"),
+    L(""),
+  ]);
+
+const OUTPUT: Record<string, Line[]> = {
+  help: [
+    L("Available commands:", "amber"),
+    L(""),
+    ...[
+      ["about", "who I am"],
+      ["neofetch", "system info, the way it should be"],
+      ["projects", "things I have shipped"],
+      ["stack", "languages, frameworks, tools"],
+      ["talks", "talks and workshops given"],
+      ["awards", "achievements and recognitions"],
+      ["education", "where I studied"],
+      ["whoami", "the short version"],
+      ["contact", "how to reach me"],
+      ["resume", "open the PDF"],
+      ["curl", "read this site from your own terminal"],
+      ["clear", "wipe the screen"],
+      ["exit", "close the terminal"],
+    ].map(([c, d]) => L(`  ${pad(c, 12)}${d}`)),
+    L(""),
+    L("  Navigate with: cd about | cd projects | cd contact", "dim"),
+    L("  History with the up and down arrows. Esc closes.", "dim"),
+  ],
+  about: [
+    L(IDENTITY.bio),
+    L(""),
+    L(`  ${IDENTITY.role}`, "dim"),
+    L(`  ${IDENTITY.status}`, "green"),
+  ],
+  whoami: [L(IDENTITY.handle, "green"), L(IDENTITY.name, "dim")],
+  neofetch: [
+    L(`${IDENTITY.handle}@${IDENTITY.host}`, "green"),
+    L("-".repeat(30), "dim"),
+    ...NEOFETCH.map((r) => L(`${pad(r.k, 12)} ${r.v}`)),
+  ],
+  stack: STACK.flatMap((row) => [
+    L(`${row.label}/`, "amber"),
+    L(`  ${row.items.join("  ")}`),
+    L(""),
+  ]),
+  projects: PROJECTS.flatMap((p) => [
+    L(`  ${p.name}  (${p.year})`, "green"),
+    L(`  ${p.desc}`, "dim"),
+    L(`  [${p.tags.join(", ")}]`, "amber"),
+    ...(p.repo ? [L(`  repo: ${p.repo}`, "dim")] : []),
+    ...(p.live ? [L(`  live: ${p.live}`, "dim")] : []),
+    L(""),
+  ]),
+  talks: timeline(TALKS),
+  awards: timeline(ACHIEVEMENTS),
+  education: [...timeline(EDUCATION), ...timeline(POSITIONS)],
+  traits: TRAITS.map((t) => L(`  › ${t}`)),
+  contact: [
+    L(`  ${pad("email", 12)}${CONTACT.email}`, "green"),
+    L(`  ${pad("github", 12)}github.com/${CONTACT.github.label}`),
+    L(`  ${pad("linkedin", 12)}linkedin.com/in/${CONTACT.linkedin.label}`),
+    L(`  ${pad("discord", 12)}${CONTACT.discord.label}`),
+    L(""),
+    L("  Or run: cd contact   to send a message from the site.", "dim"),
+  ],
+  curl: [
+    L("This whole site renders in a terminal. Try:", "amber"),
+    L(""),
+    L(`  curl ${IDENTITY.domain}`, "green"),
+    L(""),
+    L("  Same content, no browser required.", "dim"),
+  ],
+};
+
+const BANNER: Line[] = [
+  L(`${IDENTITY.handle}@${IDENTITY.host} - type 'help' for commands`, "dim"),
+];
+
+const ROUTES: Record<string, string> = {
+  home: "/", "": "/", about: "/about", projects: "/projects",
+  contact: "/contact", privacy: "/privacy",
+};
+---
+
+<!-- transition:persist keeps the whole terminal alive across client-side
+     navigations, so scrollback is still there on the next page. -->
+<div class="term-root" transition:persist="terminal">
+<!-- Launcher: a small floating control, not a bar. It should read as something
+     you can open, not as page furniture. -->
+<button
+  type="button"
+  class="term-launch"
+  id="term-launch"
+  aria-expanded="false"
+  aria-controls="term-win"
+>
+  <span class="tl-glyph" aria-hidden="true">&gt;_</span>
+  <span class="tl-label">terminal</span>
+  <kbd class="tl-key" aria-hidden="true">`</kbd>
+</button>
+
+<section class="term-win" id="term-win" aria-label="Interactive terminal" hidden>
+  <header class="tw-head">
+    <span class="tw-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="tw-title">{IDENTITY.handle}@{IDENTITY.host}: ~</span>
+    <button type="button" class="tw-close" id="term-close" aria-label="Close terminal">&#215;</button>
+  </header>
+
+  <div class="term-out" id="term-out" role="log" aria-live="polite" aria-label="Terminal output"></div>
+
+  <form class="term-form" id="term-form">
+    <label class="term-prompt" for="term-in">&gt;</label>
+    <input
+      id="term-in"
+      class="term-in"
+      type="text"
+      autocomplete="off"
+      autocapitalize="off"
+      autocorrect="off"
+      spellcheck="false"
+      aria-label="Terminal input, type help for commands"
+    />
+  </form>
+</section>
+</div>
+
+<script is:inline define:vars={{ OUTPUT, BANNER, ROUTES, RESUME: CONTACT.resume }}>
+  (() => {
+    const launch = document.getElementById("term-launch");
+    const win = document.getElementById("term-win");
+    const closeBtn = document.getElementById("term-close");
+    const out = document.getElementById("term-out");
+    const form = document.getElementById("term-form");
+    const input = document.getElementById("term-in");
+    if (!launch || !win || !out || !form || !input) return;
+
+    // This script is inline, so it re-executes on every client-side navigation,
+    // but the elements above are persisted across them. Without this guard each
+    // navigation would stack another set of listeners on the same nodes.
+    const root = document.querySelector(".term-root");
+    if (root) {
+      if (root.dataset.ready === "1") return;
+      root.dataset.ready = "1";
+    }
+
+    const history = [];
+    let hIndex = -1;
+
+    const write = (lines) => {
+      for (const line of lines) {
+        const el = document.createElement("div");
+        el.className = "tl" + (line.c ? " tl-" + line.c : "");
+        // textContent, not innerHTML: output is ours today, but a terminal that
+        // echoes input is exactly where that assumption breaks later.
+        el.textContent = line.t;
+        out.appendChild(el);
+      }
+      out.scrollTop = out.scrollHeight;
+    };
+
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    const isOpen = () => !win.hidden;
+    let closing = null;
+
+    const open = () => {
+      if (closing) {
+        // interrupt a close already in flight rather than queueing behind it
+        win.removeEventListener("animationend", closing);
+        closing = null;
+      }
+      win.hidden = false;
+      win.dataset.state = "open";
+      launch.setAttribute("aria-expanded", "true");
+      if (!out.childElementCount) write(BANNER);
+      input.focus();
+    };
+
+    const finishClose = () => {
+      closing = null;
+      win.hidden = true;
+      win.dataset.state = "closed";
+      launch.setAttribute("aria-expanded", "false");
+      launch.focus();
+    };
+
+    const close = () => {
+      if (closing) return;
+      if (reduced.matches) return finishClose();
+      // hand focus back before the element goes away, so focus never lands on
+      // a node that is mid-animation and about to be hidden
+      launch.focus();
+      win.dataset.state = "closing";
+      closing = finishClose;
+      win.addEventListener("animationend", closing, { once: true });
+    };
+
+    const toggle = () => (isOpen() && win.dataset.state !== "closing" ? close() : open());
+
+    launch.addEventListener("click", toggle);
+    if (closeBtn) closeBtn.addEventListener("click", close);
+
+    addEventListener("keydown", (e) => {
+      const tag = document.activeElement ? document.activeElement.tagName : "";
+      const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(tag);
+      if (e.key === "`" && !typing) {
+        e.preventDefault();
+        toggle();
+      } else if (e.key === "Escape" && isOpen()) {
+        close();
+      }
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        if (!history.length) return;
+        e.preventDefault();
+        hIndex = e.key === "ArrowUp"
+          ? Math.min(hIndex + 1, history.length - 1)
+          : Math.max(hIndex - 1, -1);
+        input.value = hIndex === -1 ? "" : history[hIndex];
+        input.setSelectionRange(input.value.length, input.value.length);
+      } else if (e.key === "l" && e.ctrlKey) {
+        e.preventDefault();
+        out.replaceChildren();
+      }
+    });
+
+    const run = (raw) => {
+      const line = raw.trim();
+      if (!line) return;
+      history.unshift(line);
+      hIndex = -1;
+      write([{ t: "$ " + line, c: "green" }]);
+
+      const parts = line.split(/\s+/);
+      const cmd = parts[0];
+      const arg = parts.slice(1).join(" ").toLowerCase();
+      const c = cmd.toLowerCase();
+
+      if (c === "clear") return out.replaceChildren();
+      if (c === "exit" || c === "quit") return close();
+
+      if (c === "cd" || c === "open") {
+        const target = ROUTES[arg.replace(/^\/+|\/+$/g, "")];
+        if (target) {
+          write([{ t: "opening " + target + " ...", c: "dim" }]);
+          setTimeout(function () { location.href = target; }, 250);
+        } else {
+          write([{ t: "cd: no such directory: " + (arg || "?"), c: "err" }]);
+        }
+        return;
+      }
+
+      if (c === "resume") {
+        write([{ t: "opening resume.pdf ...", c: "dim" }]);
+        window.open(RESUME, "_blank", "noopener");
+        return;
+      }
+
+      if (c === "ls") {
+        write([{ t: "  about  projects  contact  privacy", c: "green" }]);
+        return;
+      }
+
+      if (c === "sudo") {
+        write([{ t: "shovin is not in the sudoers file. This incident will be reported.", c: "err" }]);
+        return;
+      }
+
+      const known = OUTPUT[c] || (c === "skills" ? OUTPUT.stack : null);
+      if (known) {
+        write(known);
+      } else {
+        write([
+          { t: "command not found: " + cmd, c: "err" },
+          { t: "type 'help' to see what works", c: "dim" },
+        ]);
+      }
+    };
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      run(input.value);
+      input.value = "";
+    });
+  })();
+</script>
+
+<style>
+  /* the wrapper exists only to give transition:persist a single root */
+  .term-root { display: contents; }
+
+  /* ── Launcher ───────────────────────────────────────────────── */
+  .term-launch {
+    position: fixed;
+    right: clamp(16px, 4vw, 32px);
+    bottom: clamp(16px, 4vw, 32px);
+    z-index: 200;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    padding: 0 14px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: var(--fs-meta);
+    color: var(--text-dim);
+    box-shadow: 0 10px 28px rgb(0 0 0 / 0.5);
+    transition: color 0.15s, border-color 0.15s, transform 0.15s;
+  }
+  .term-launch:hover {
+    color: var(--green);
+    border-color: var(--green);
+    transform: translateY(-1px);
+  }
+  .term-launch:active { transform: translateY(0); }
+  .tl-glyph { color: var(--green); letter-spacing: -0.05em; }
+  .tl-key {
+    font-family: inherit;
+    font-size: var(--fs-meta);
+    padding: 1px 6px;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    color: var(--text-dim);
+  }
+
+  /* ── Window ─────────────────────────────────────────────────── */
+  /* An author `display` beats the UA's `[hidden] { display: none }`, so without
+     this the window stays on screen no matter what the close button sets. */
+  .term-win[hidden] { display: none; }
+
+  .term-win {
+    position: fixed;
+    right: clamp(16px, 4vw, 32px);
+    bottom: clamp(16px, 4vw, 32px);
+    z-index: 201;
+    display: flex;
+    flex-direction: column;
+    width: min(620px, calc(100vw - 32px));
+    height: min(460px, calc(100dvh - 96px));
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    /* real offset and blur, not a flat halo */
+    box-shadow: 0 24px 64px rgb(0 0 0 / 0.62);
+    overflow: hidden;
+    font-size: var(--fs-meta);
+  }
+
+  /* Open and close both animate. The close is driven by a data-state attribute
+     because the element cannot be `hidden` until its exit animation has run. */
+  @media (prefers-reduced-motion: no-preference) {
+    .term-win[data-state="open"] {
+      animation: term-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .term-win[data-state="closing"] {
+      animation: term-out 150ms cubic-bezier(0.4, 0, 1, 1) both;
+      pointer-events: none;
+    }
+  }
+  @keyframes term-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes term-out {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 0; transform: translateY(10px) scale(0.98); }
+  }
+
+  .tw-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px 0 12px;
+    min-height: 38px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .tw-dots { display: flex; gap: 6px; flex-shrink: 0; }
+  .tw-dots i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--border-strong);
+  }
+  .tw-dots i:first-child { background: var(--error); }
+  .tw-dots i:nth-child(2) { background: var(--amber); }
+  .tw-dots i:last-child { background: var(--green); }
+  .tw-title {
+    flex: 1;
+    color: var(--text-dim);
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tw-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    background: none;
+    border: 0;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 1.05rem;
+    line-height: 1;
+    color: var(--text-dim);
+    transition: color 0.15s, background 0.15s;
+  }
+  .tw-close:hover { color: var(--error); background: rgb(var(--green-rgb) / 0.05); }
+
+  .term-out {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 12px 14px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .tl { color: var(--text); }
+  .tl-green { color: var(--green); }
+  .tl-amber { color: var(--amber); }
+  .tl-dim { color: var(--text-dim); }
+  .tl-err { color: var(--error); }
+
+  .term-form {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-shrink: 0;
+    padding: 0 14px;
+    border-top: 1px solid var(--border);
+  }
+  .term-form:focus-within { border-top-color: var(--green); }
+  .term-prompt { color: var(--green); flex-shrink: 0; }
+  .term-in {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: 0;
+    color: var(--text);
+    font-family: inherit;
+    font-size: var(--fs-meta);
+    padding: 12px 0;
+  }
+  .term-in:focus { outline: none; }
+
+  /* No JS means no terminal; a launcher that opens nothing is worse than none. */
+  html:not(.js) .term-launch { display: none; }
+
+  @media (max-width: 560px) {
+    .tl-label, .tl-key { display: none; }
+    .term-launch { padding: 0 13px; }
+    .term-win {
+      left: 16px;
+      right: 16px;
+      width: auto;
+      height: min(60dvh, 420px);
+    }
+  }
+</style>

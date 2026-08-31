@@ -13,7 +13,7 @@ export const PROJECTS: Project[] = [
   {
     name: "Medical Image Reasoning",
     year: "2026",
-    desc: "A web-based Digital Image Processing teaching tool that demonstrates 15 classical DIP techniques and performs retinal disease classification using an in-browser AI model.",
+    desc: "A teaching tool for Digital Image Processing: 15 classical DIP techniques you can run on your own images, plus retinal disease classification from a model that runs in the browser.",
     tags: ["OpenCV", "TensorFlow", "HTML"],
     repo: "https://github.com/PlatypusPus/DIpPBL",
     live: "https://dippbl.onrender.com/",
@@ -21,7 +21,7 @@ export const PROJECTS: Project[] = [
   {
     name: "Schizo Chat",
     year: "2024",
-    desc: "SchizoChat is an experimental real-time chat application designed for creative, free-flowing conversations with a unique and unconventional interface.",
+    desc: "An experimental real-time chat app with a deliberately unconventional interface, built for loose, fast conversation.",
     tags: ["ReactJS", "NodeJS", "MongoDB"],
     repo: "https://github.com/PlatypusPus/Tech-Winter-Break-app",
     live: "https://schizo-vuhd.onrender.com/",

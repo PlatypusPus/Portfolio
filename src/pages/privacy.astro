@@ -1,9 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
-const updated = "June 2026";
+const updated = "August 2026";
 ---
 
-<Layout title="shov.in — privacy">
+<Layout
+  title="shov.in — privacy"
+  description="What shov.in collects, what it does not, and how your data is handled."
+>
   <section class="hero">
     <div class="panel">
       <span class="corner tl"></span>
@@ -23,8 +26,21 @@ const updated = "June 2026";
 
         <h2>What's collected</h2>
         <p>
-          Nothing directly. There are no accounts, no contact forms, no
-          analytics or tracking scripts, and no advertising cookies on this site.
+          There are no accounts, no analytics, no tracking scripts, and no
+          advertising cookies on this site. Nothing is stored in a database.
+        </p>
+        <p>
+          The one exception is the contact form. When you send a message, the
+          name, email address, and message you typed are passed to
+          <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Resend</a>,
+          the service that delivers it, and the email lands in my personal
+          inbox. Nothing is written to a database here or kept on the site. I
+          keep those emails as long as the conversation is useful, and you can
+          ask me to delete one at any time.
+        </p>
+        <p>
+          The form is the only place the site asks you for anything. Everything
+          else on it is read-only.
         </p>
 
         <h2>Hosting</h2>
@@ -55,25 +71,28 @@ const updated = "June 2026";
   .hero { padding: 32px 0; }
 
   .page-title {
-    font-size: 2rem;
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-title);
+    font-weight: 400;
+    line-height: 1.4;
     color: var(--green);
-    letter-spacing: -0.5px;
+    letter-spacing: 0;
   }
   .updated {
-    font-size: 0.82rem;
+    font-size: var(--fs-meta);
     color: var(--text-dim);
     margin-top: 8px;
   }
 
-  .prose { margin-top: 28px; max-width: 680px; }
+  .prose { margin-top: 28px; max-width: var(--measure); }
   .prose h2 {
-    font-size: 1.05rem;
+    font-size: var(--fs-body);
     color: var(--text);
     margin-top: 28px;
     margin-bottom: 8px;
   }
   .prose p {
-    font-size: 0.95rem;
+    font-size: var(--fs-body);
     line-height: 1.8;
     color: var(--text-dim);
   }

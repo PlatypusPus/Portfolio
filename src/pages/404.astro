@@ -1,0 +1,106 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Rails from "../components/Rails.astro";
+
+// Any page can be the first page on this site, so a wrong URL should still put
+// someone somewhere useful rather than dead-ending them.
+const ROUTES = [
+  { href: "/", label: "home", note: "who I am and what I've built" },
+  { href: "/projects", label: "projects", note: "things I've shipped" },
+  { href: "/about", label: "about", note: "the long version" },
+  { href: "/contact", label: "contact", note: "how to reach me" },
+];
+---
+
+<Layout
+  title="shov.in — 404"
+  description="That page doesn't exist on shov.in."
+>
+  <Rails tag="[ 404 ]" file="~/portfolio/404.astro" />
+
+  <section class="hero">
+    <div class="panel">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+      <span class="panel-label">~/404</span>
+
+      <p class="cmd">$ cd {Astro.url.pathname}</p>
+      <h1 class="page-title">404</h1>
+      <p class="intro">
+        <span class="err">bash:</span> no such file or directory
+      </p>
+
+      <p class="body">
+        The page you asked for isn't here. It may have moved, or the link may
+        have been mistyped. Everything on the site is one hop away:
+      </p>
+
+      <ul class="routes">
+        {ROUTES.map((r) => (
+          <li>
+            <a href={r.href}>
+              <span class="route-name">{r.label}</span>
+              <span class="route-note">{r.note}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero { padding: 32px 0; }
+  .cmd {
+    font-size: var(--fs-body);
+    color: var(--text-dim);
+    margin-bottom: 18px;
+    overflow-wrap: anywhere;
+  }
+  .page-title {
+    font-family: "Press Start 2P", monospace;
+    font-size: var(--fs-title);
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--green);
+  }
+  .intro { font-size: var(--fs-body); color: var(--text); margin-top: 14px; }
+  .err { color: var(--error); }
+  .body {
+    font-size: var(--fs-body);
+    line-height: 1.8;
+    color: var(--text-dim);
+    margin-top: 20px;
+    max-width: var(--measure);
+  }
+
+  .routes {
+    list-style: none;
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .routes a {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+    min-height: 44px;
+    padding: 8px 10px;
+    margin-inline: -10px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .routes a:hover { background: rgb(var(--green-rgb) / 0.05); }
+  .route-name {
+    color: var(--green);
+    font-size: var(--fs-body);
+    min-width: 110px;
+  }
+  .route-name::before { content: "› "; }
+  .route-note { color: var(--text-dim); font-size: var(--fs-meta); }
+</style>

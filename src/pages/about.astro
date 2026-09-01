@@ -1,8 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Rails from "../components/Rails.astro";
-import { Image } from "astro:assets";
-import shovin from "../assets/shovin.png";
 import { COLORS } from "../tokens";
 import {
   IDENTITY, CONTACT, NEOFETCH, TRAITS, STACK,
@@ -94,7 +92,7 @@ const TALLY = [
 
       <div class="nf">
         <figure class="nf-avatar">
-          <Image src={shovin} alt="Shovin Jeson Dsouza" width={460} densities={[1, 2]} />
+          <img src="/shovin.webp" alt="Shovin Jeson Dsouza" width="460" height="460" decoding="async" />
           <div class="swatches">
             {SWATCHES.map((k) => (
               <span style={`background:${COLORS[k]}`} title={`--${k} · ${COLORS[k]}`}></span>

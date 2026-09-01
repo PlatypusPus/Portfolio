@@ -40,6 +40,10 @@ export default defineConfig({
     ],
   },
 
+  // Lighthouse flagged both stylesheets as render-blocking. They are ~5KB per
+  // page, which is cheaper to inline than to spend two round trips fetching.
+  build: { inlineStylesheets: 'always' },
+
   // On-demand rendering so middleware runs in production. about/projects/privacy/404
   // opt back into prerendering (`export const prerender = true`) and ship as static
   // files on Cloudflare's CDN; only `/`, `/contact`, `/tui` and `/api/contact`

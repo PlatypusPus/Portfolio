@@ -353,21 +353,35 @@ const NAV = [
   }
 
   /* ── Skip link ── */
+  /* Clipped rather than translated off the top edge. A translated element is
+     still painted, and mobile browsers position fixed elements against the
+     layout viewport, so a pinch-zoom pan or an overscroll bounce pulled this
+     back into frame. At 1px and clipped there is nothing to pull.
+     :focus, not :focus-visible - a screen reader moving focus here has to see
+     it, and that is the user this link exists for. */
   .skip-link {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .skip-link:focus {
     position: fixed;
     top: 0;
     left: 0;
     z-index: 10000;
+    width: auto;
+    height: auto;
+    clip-path: none;
     padding: 12px 18px;
     background: var(--green);
     color: var(--bg);
     font-size: var(--fs-body);
     text-decoration: none;
     border-radius: 0 0 6px 0;
-    transform: translateY(-120%);
-    transition: transform 0.15s ease;
   }
-  .skip-link:focus-visible { transform: translateY(0); }
   #main:focus { outline: none; }
   .boot-log {
     font-family: var(--font-mono);

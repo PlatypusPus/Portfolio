@@ -179,15 +179,9 @@ const NAV = [
         return '<span class="head">' + line + "</span>";
       }
 
-      function done() {
-        window.__booted = true;
-        window.dispatchEvent(new Event("boot-complete"));
-      }
-
       function skip() {
         boot.classList.add("done");
         setTimeout(() => boot.remove(), 550);
-        done();
       }
 
       const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -195,7 +189,6 @@ const NAV = [
 
       if (reduced || seen) {
         boot.remove();
-        setTimeout(done, 0);
       } else {
         sessionStorage.setItem("booted", "1");
         let i = 0;
@@ -622,6 +615,10 @@ const NAV = [
      permanently, so it scrolls away here and the tap targets stay full size. */
   @media (max-width: 760px) {
     .nav-links { margin-left: 0; }
-    .navbar { position: static; }
+    /* relative, not static: the bar stops sticking here, but it must stay a
+       containing block. Under `static` its four .corner brackets and the
+       ::before gap-mask resolved against the document instead, landing tens of
+       px away and pushing ~1px past the viewport edge. */
+    .navbar { position: relative; }
   }
 </style>

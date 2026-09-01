@@ -224,9 +224,10 @@ const FEATURED = PROJECTS.slice(0, 3);
 
     const onPage = () => {
       bindCopyDiscord();
-      // wait for the Arch boot overlay to finish before typing
-      if (window.__booted) typeBio();
-      else addEventListener("boot-complete", typeBio, { once: true });
+      // The boot overlay is decoration painted on top; the page underneath is
+      // live from the first paint. Typing starts now rather than waiting for the
+      // animation, so skipping it lands on a page that is already there.
+      typeBio();
     };
 
     document.addEventListener("astro:page-load", onPage);

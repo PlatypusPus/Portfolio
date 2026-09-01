@@ -4,21 +4,18 @@ import { isTerminalClient, TUI } from './lib/tui';
 // `curl shov.in` should return the portfolio, not a wall of HTML tags.
 // Browsers are untouched and fall straight through to the normal render.
 export const onRequest = defineMiddleware(async (context, next) => {
-  const ua = context.request.headers.get('user-agent');
-
-  // Only the bare site root. `curl shov.in/about` is a page request; hijacking
-  // every route would break anyone scripting against the HTML on purpose.
-  const isRoot = context.url.pathname === '/';
-
-  if (isRoot && isTerminalClient(ua)) {
-    return new Response(TUI, {
-      status: 200,
-      headers: {
-        'content-type': 'text/plain; charset=utf-8',
-        // safe to cache hard: the content only changes when the site is rebuilt
-        'cache-control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400',
-      },
-    });
+  if (context.url.pathname === '/') {
+    const ua = context.request.headers.get('user-agent');
+    if (isTerminalClient(ua)) {
+      return new Response(TUI, {
+        status: 200,
+        headers: {
+          'content-type': 'text/plain; charset=utf-8',
+          // safe to cache hard: the content only changes when the site is rebuilt
+          'cache-control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400',
+        },
+      });
+    }
   }
 
   const response = await next();

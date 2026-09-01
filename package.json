@@ -12,13 +12,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^14.2.5",
-    "astro": "^7.2.9",
+    "@astrojs/cloudflare": "^12.6.13",
+    "astro": "^5.18.2",
     "resend": "^6.25.0"
   },
   "devDependencies": {
-    "@emnapi/core": "^1.11.3",
-    "@emnapi/runtime": "^1.11.3",
     "wrangler": "^4.127.1"
   }
 }

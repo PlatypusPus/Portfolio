@@ -1,7 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "shovin-portfolio",
+  "pages_build_output_dir": "dist",
   "compatibility_date": "2026-01-01",
-  "compatibility_flags": ["nodejs_compat"],
-  "observability": { "enabled": true }
+  // Astro's SSR runtime + `resend` need Node built-ins on the edge.
+  "compatibility_flags": ["nodejs_compat"]
 }

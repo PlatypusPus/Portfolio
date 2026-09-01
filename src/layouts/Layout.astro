@@ -2,6 +2,7 @@
 import { rootVars } from "../tokens";
 import Terminal from "../components/Terminal.astro";
 import { ClientRouter } from "astro:transitions";
+import { Font } from "astro:assets";
 import { IDENTITY, CONTACT, STACK, EDUCATION } from "../data/profile";
 
 interface Props {
@@ -82,12 +83,8 @@ const NAV = [
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Press+Start+2P&display=swap"
-      rel="stylesheet"
-    />
+    <Font cssVariable="--font-mono" preload />
+    <Font cssVariable="--font-pixel" preload />
     <ClientRouter />
 
     <script is:inline>
@@ -380,7 +377,7 @@ const NAV = [
   .skip-link:focus-visible { transform: translateY(0); }
   #main:focus { outline: none; }
   .boot-log {
-    font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+    font-family: var(--font-mono);
     font-size: var(--fs-body);
     line-height: 1.55;
     color: var(--text);
@@ -399,7 +396,7 @@ const NAV = [
   }
 
   body {
-    font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+    font-family: var(--font-mono);
     /* rem, not px — a hard 16px ignores a raised browser default font size */
     font-size: var(--fs-body);
     /* light-on-dark blooms and closes up counters; a hair of tracking opens it */

@@ -1,0 +1,8 @@
+# Everything under /_astro/ has a content hash in its filename, so a change
+# produces a new URL. That makes these safe to cache permanently — without this
+# a repeat visitor revalidates the CSS, JS, fonts and images on every page load.
+#
+# HTML is deliberately not listed: src/middleware.ts sets its own Cache-Control
+# so a new deploy is picked up immediately.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 
 import cloudflare from '@astrojs/cloudflare';
 
@@ -8,6 +8,37 @@ export default defineConfig({
   // Canonical origin for <link rel="canonical"> and absolute og:image URLs.
   // Change this if the production domain is not shov.in.
   site: 'https://shov.in',
+
+  // Self-hosted fonts. Loading these from fonts.googleapis.com cost two
+  // third-party DNS+TLS handshakes on the critical render path — by far the
+  // slowest thing left, now that the CSS and JS gzip to a few KB. Astro
+  // downloads the woff2 files at build time and serves them from this origin,
+  // so they arrive on the same HTTP/2 connection as the page.
+  //
+  // It also means visitors' IPs stop being sent to Google on every page view,
+  // which is what /privacy already claims.
+  experimental: {
+    fonts: [
+      {
+        provider: fontProviders.google(),
+        name: 'JetBrains Mono',
+        cssVariable: '--font-mono',
+        weights: [400, 700],
+        styles: ['normal'],
+        subsets: ['latin'],
+        fallbacks: ['Cascadia Code', 'ui-monospace', 'monospace'],
+      },
+      {
+        provider: fontProviders.google(),
+        name: 'Press Start 2P',
+        cssVariable: '--font-pixel',
+        weights: [400],
+        styles: ['normal'],
+        subsets: ['latin'],
+        fallbacks: ['monospace'],
+      },
+    ],
+  },
 
   // On-demand rendering so middleware runs in production. about/projects/privacy/404
   // opt back into prerendering (`export const prerender = true`) and ship as static

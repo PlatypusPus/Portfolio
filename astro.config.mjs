@@ -21,5 +21,12 @@ export default defineConfig({
 
   // The only images are two fixed-size avatar renders. Optimise them at build
   // time so production needs no Cloudflare Images binding or runtime transforms.
-  adapter: cloudflare({ imageService: 'compile' }),
+  //
+  // workerEntryPoint: builds the App with streaming off. Without it every page
+  // renders as the literal string "[object Object]" on Cloudflare — see the
+  // comment in src/worker-entry.ts for why.
+  adapter: cloudflare({
+    imageService: 'compile',
+    workerEntryPoint: { path: './src/worker-entry.ts' },
+  }),
 });

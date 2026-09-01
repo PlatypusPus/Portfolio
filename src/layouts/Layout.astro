@@ -2,21 +2,25 @@
 import { rootVars } from "../tokens";
 import Terminal from "../components/Terminal.astro";
 import { ClientRouter } from "astro:transitions";
+import { IDENTITY, CONTACT, STACK, EDUCATION } from "../data/profile";
 
 interface Props {
   title?: string;
   description?: string;
   /** Absolute or root-relative path to a share image. Defaults to the site card. */
   image?: string;
+  /** Keep a page out of search results. Only the 404 wants this. */
+  noindex?: boolean;
 }
 
 const DEFAULT_DESCRIPTION =
-  "Shovin Jeson Dsouza — 4th year Computer Science & Data Science student at SJEC, Mangalore. Self-hosts his own infrastructure, builds tools for fun, and teaches what he learns.";
+  "I'm a 4th-year CS student at SJEC, Mangalore. I self-host my own infrastructure, run Linux and Gitea workshops, and build things mostly for the fun of it.";
 
 const {
-  title = "shov.in",
+  title = `${IDENTITY.name} — CS student and self-hoster`,
   description = DEFAULT_DESCRIPTION,
   image = "/og.png",
+  noindex = false,
 } = Astro.props;
 
 // Astro.site is set in astro.config.mjs; falling back to the request origin keeps
@@ -24,6 +28,25 @@ const {
 const origin = Astro.site ?? new URL(Astro.url.origin);
 const canonical = new URL(Astro.url.pathname, origin);
 const ogImage = new URL(image, origin);
+
+// Structured data, built from the same profile.ts every other surface reads, so
+// what Google is told can never drift from what the page says. `sameAs` is the
+// part that actually matters: it ties this domain to the GitHub and LinkedIn
+// profiles, which is how a search engine works out that they are one person.
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: IDENTITY.name,
+  alternateName: IDENTITY.handle,
+  url: origin.href,
+  image: ogImage.href,
+  email: `mailto:${CONTACT.email}`,
+  jobTitle: "Computer Science student",
+  description: DEFAULT_DESCRIPTION,
+  alumniOf: { "@type": "CollegeOrUniversity", name: EDUCATION[0].place },
+  knowsAbout: STACK.flatMap((row) => row.items),
+  sameAs: [CONTACT.github.url, CONTACT.linkedin.url],
+};
 
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 const NAV = [
@@ -43,6 +66,7 @@ const NAV = [
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="shov.in" />
@@ -57,6 +81,7 @@ const NAV = [
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

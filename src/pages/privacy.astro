@@ -3,12 +3,12 @@ import Layout from "../layouts/Layout.astro";
 
 export const prerender = true;
 
-const updated = "August 2026";
+const updated = "September 2026";
 ---
 
 <Layout
-  title="shov.in — privacy"
-  description="What shov.in collects, what it does not, and how your data is handled."
+  title="Privacy — Shovin Jeson Dsouza"
+  description="What this site collects (almost nothing), and what happens to a message you send through the contact form."
 >
   <section class="hero">
     <div class="panel">
@@ -29,8 +29,16 @@ const updated = "August 2026";
 
         <h2>What's collected</h2>
         <p>
-          There are no accounts, no analytics, no tracking scripts, and no
-          advertising cookies on this site. Nothing is stored in a database.
+          There are no accounts, no advertising cookies, and no cross-site
+          tracking. Nothing about you is stored in a database.
+        </p>
+        <p>
+          Page views are counted with
+          <a href="https://www.cloudflare.com/web-analytics/" target="_blank" rel="noopener">Cloudflare Web Analytics</a>,
+          which sets no cookies, reads nothing out of your browser's storage,
+          and does not fingerprint you or follow you to other sites. What I get
+          is a count: which pages were opened, roughly which country from, and
+          which site linked here. None of it identifies anyone.
         </p>
         <p>
           The one exception is the contact form. When you send a message, the
@@ -40,6 +48,11 @@ const updated = "August 2026";
           inbox. Nothing is written to a database here or kept on the site. I
           keep those emails as long as the conversation is useful, and you can
           ask me to delete one at any time.
+        </p>
+        <p>
+          Sending a message also sets one cookie, <code>shovin_contact_at</code>,
+          which holds nothing but the time you sent it. It exists so the form
+          can't be hammered, expires after a minute, and never leaves this site.
         </p>
         <p>
           The form is the only place the site asks you for anything. Everything
@@ -106,4 +119,13 @@ const updated = "August 2026";
     transition: border-color 0.15s;
   }
   .prose a:hover { border-bottom-color: var(--green); }
+  .prose code {
+    font-family: inherit;
+    font-size: var(--fs-meta);
+    color: var(--amber);
+    padding: 2px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+  }
 </style>

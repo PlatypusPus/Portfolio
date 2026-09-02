@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Rails from "../components/Rails.astro";
-import { COLORS } from "../tokens";
+import { SWATCH_KEYS } from "../tokens";
 import {
   IDENTITY, CONTACT, NEOFETCH, TRAITS, STACK,
   EDUCATION, TALKS, ACHIEVEMENTS, POSITIONS,
@@ -9,13 +9,6 @@ import {
 import type { LogKind, TimelineEntry } from "../data/profile";
 
 export const prerender = true;
-
-// Real neofetch prints your terminal's colour blocks. These are the actual site
-// tokens, darkest to lightest, so the row can never drift from the palette.
-const SWATCHES = [
-  "bg", "border", "text-faint", "border-strong",
-  "text-dim", "text", "green", "amber",
-] as const;
 
 const MONTHS = "jan feb mar apr may jun jul aug sep oct nov dec".split(" ");
 
@@ -94,8 +87,11 @@ const TALLY = [
         <figure class="nf-avatar">
           <img src="/shovin.webp" alt="Shovin Jeson Dsouza" width="460" height="460" decoding="async" />
           <div class="swatches">
-            {SWATCHES.map((k) => (
-              <span style={`background:${COLORS[k]}`} title={`--${k} · ${COLORS[k]}`}></span>
+            {/* Real neofetch prints your terminal's colour blocks. These are
+                the live site tokens, faintest to strongest, so the row can
+                neither drift from the palette nor from the current theme. */}
+            {SWATCH_KEYS.map((k) => (
+              <span style={`background:var(--${k})`} title={`--${k}`}></span>
             ))}
           </div>
         </figure>
@@ -301,9 +297,9 @@ const TALLY = [
     font-family: var(--font-pixel);
     font-size: var(--fs-title);
     font-weight: 400;
-    color: var(--green);
+    color: var(--accent);
     line-height: 1.4;
-    text-shadow: 0 0 24px rgb(var(--green-rgb) / 0.3);
+    text-shadow: 0 0 24px rgb(var(--accent-rgb) / var(--bloom));
   }
   .nf-sep { color: var(--text-faint); margin: 4px 0 14px; overflow: hidden; white-space: nowrap; }
   .nf-row { color: var(--text); }
@@ -319,7 +315,7 @@ const TALLY = [
     font-family: var(--font-pixel);
     font-size: var(--fs-title);
     font-weight: 400;
-    color: var(--green);
+    color: var(--accent);
     line-height: 1.5;
     margin-bottom: 18px;
   }
@@ -336,7 +332,7 @@ const TALLY = [
   .up-row { display: flex; gap: 16px; font-size: var(--fs-body); line-height: 1.7; }
   .up-row dt { color: var(--amber); width: 92px; flex-shrink: 0; }
   .up-row dd { color: var(--text); margin: 0; min-width: 0; }
-  .up-live { display: flex; align-items: center; gap: 11px; color: var(--green); }
+  .up-live { display: flex; align-items: center; gap: 11px; color: var(--accent); }
 
   /* flex, not an auto-fit grid: with two cells the grid stretched each one to
      half the panel and left the short labels swimming in empty space */
@@ -354,7 +350,7 @@ const TALLY = [
     font-size: var(--fs-title);
     font-weight: 400;
     line-height: 1.3;
-    color: var(--green);
+    color: var(--accent);
   }
   .tally-l { font-size: var(--fs-meta); color: var(--text-dim); line-height: 1.5; }
 
@@ -379,18 +375,21 @@ const TALLY = [
     border-radius: 5px;
     font-size: var(--fs-meta);
     color: var(--text-dim);
+    background: var(--bg);
     cursor: pointer;
     transition: border-color 0.15s, color 0.15s, background 0.15s;
   }
-  .filters label:hover { border-color: var(--green); color: var(--green); }
+  .filters label:hover { border-color: var(--accent); color: var(--accent); }
   .fr:checked + label {
-    border-color: var(--green);
-    color: var(--green);
-    background: rgb(var(--green-rgb) / 0.07);
+    border-color: var(--accent);
+    color: var(--accent);
+    /* mixed, not a 7% overlay — a translucent tint would show the panel grid
+       through a control that just gained a solid background */
+    background: color-mix(in srgb, var(--accent) 7%, var(--bg));
   }
-  .fr:focus-visible + label { outline: 2px solid var(--green); outline-offset: 2px; }
+  .fr:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
   .fc { color: var(--text-faint); font-variant-numeric: tabular-nums; }
-  .fr:checked + label .fc { color: var(--green); }
+  .fr:checked + label .fc { color: var(--accent); }
 
   .log {
     list-style: none;
@@ -419,11 +418,12 @@ const TALLY = [
     padding: 3px 8px;
     border: 1px solid var(--border);
     border-radius: 4px;
+    background: var(--bg);
     font-size: var(--fs-meta);
     line-height: 1.5;
     color: var(--text-dim);
   }
-  li[data-kind="talk"] .lk { color: var(--green); border-color: rgb(var(--green-rgb) / 0.45); }
+  li[data-kind="talk"] .lk { color: var(--accent); border-color: rgb(var(--accent-rgb) / 0.45); }
   li[data-kind="award"] .lk { color: var(--amber); border-color: var(--amber); }
   li[data-kind="work"] .lk { color: var(--text-bright); border-color: var(--border-strong); }
   li[data-kind="role"] .lk { color: var(--text-bright); border-color: var(--border-strong); }
@@ -444,7 +444,7 @@ const TALLY = [
     color: var(--text);
   }
   .lp { font-size: var(--fs-meta); color: var(--text-dim); flex-shrink: 0; }
-  .lpl { font-size: var(--fs-body); color: var(--green); margin-top: 4px; }
+  .lpl { font-size: var(--fs-body); color: var(--accent); margin-top: 4px; }
   .ld {
     font-size: var(--fs-body);
     line-height: 1.65;
@@ -459,23 +459,24 @@ const TALLY = [
     padding: 7px 14px;
     border: 1px solid var(--border);
     border-radius: 5px;
+    background: var(--bg);
     font-size: var(--fs-meta);
     color: var(--text);
     transition: border-color 0.15s, color 0.15s;
   }
-  .traits span:hover { border-color: var(--green); color: var(--green); }
+  .traits span:hover { border-color: var(--accent); color: var(--accent); }
 
   .dot {
     width: 10px;
     height: 10px;
     flex-shrink: 0;
     border-radius: 50%;
-    background: var(--green);
+    background: var(--accent);
     animation: pulse-dot 2.4s ease-in-out infinite;
   }
   @keyframes pulse-dot {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(var(--green-rgb) / 0.4); }
-    50%      { opacity: 0.45; box-shadow: 0 0 0 7px rgb(var(--green-rgb) / 0); }
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(var(--accent-rgb) / 0.4); }
+    50%      { opacity: 0.45; box-shadow: 0 0 0 7px rgb(var(--accent-rgb) / 0); }
   }
 
   /* ── outro ── */
@@ -496,12 +497,13 @@ const TALLY = [
     border-radius: 6px;
     font-size: var(--fs-body);
     text-decoration: none;
+    background: var(--bg);
     transition: border-color 0.15s, color 0.15s, background 0.15s;
   }
-  .btn-primary { border: 1px solid var(--green); color: var(--green); }
-  .btn-primary:hover { background: var(--green); color: var(--bg); }
+  .btn-primary { border: 1px solid var(--accent); color: var(--accent); }
+  .btn-primary:hover { background: var(--accent); color: var(--bg); }
   .btn-ghost { border: 1px solid var(--border); color: var(--text); }
-  .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
   .arr { opacity: 0.7; }
 
   @media (max-width: 600px) {

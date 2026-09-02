@@ -1,5 +1,5 @@
 ---
-import { rootVars } from "../tokens";
+import { themeCss } from "../tokens";
 import Terminal from "../components/Terminal.astro";
 import { ClientRouter } from "astro:transitions";
 import { Font } from "astro:assets";
@@ -59,10 +59,22 @@ const NAV = [
 ---
 
 <!doctype html>
-<html lang="en" style={rootVars}>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="/favicon.ico" />
+    {/* Both palettes, as one <style> ahead of everything else. This used to be a
+        style attribute on <html>, which had to move: an inline style beats every
+        selector, so [data-theme] could never have overridden it. */}
+    <style is:inline set:html={themeCss}></style>
+    {/* A GIF cannot carry two palettes the way an SVG could, so there is one
+        per theme and the head script below swaps the href. Dark is the default,
+        matching what a bare /favicon.ico request gets — that file still exists
+        for anything asking for it directly, but it is deliberately not declared
+        here: given the choice Chrome picks the .ico for a small tab and the GIF
+        never appears. Firefox animates the bongo paws; Chrome and Safari show
+        the first frame. */}
+    <link rel="icon" id="favicon" href="/favicon-dark.gif" type="image/gif" sizes="64x64" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -101,6 +113,115 @@ const NAV = [
       };
       markBooted();
       document.addEventListener("astro:after-swap", markBooted);
+
+      // Theme. Three states: "dark", "light", and stored-nothing, which means
+      // follow the OS — the stylesheet already does that through
+      // prefers-color-scheme, so "follow the OS" is the absence of an attribute
+      // rather than a value of its own.
+      //
+      // Applied here, in the head, before anything paints: a light-mode visitor
+      // must never eat a black flash on the way in.
+      const THEME_NAMES = { dark: "dark", light: "light", "": "system" };
+      const nextTheme = (t) => (t === "" ? "light" : t === "light" ? "dark" : "");
+
+      const readTheme = () => {
+        try {
+          const v = localStorage.getItem("theme");
+          return v === "dark" || v === "light" ? v : "";
+        } catch {
+          return "";
+        }
+      };
+
+      // Runs again after every client-side navigation: ClientRouter takes
+      // <html>'s attributes from the incoming document, and the server has no
+      // idea what this visitor picked.
+      const applyTheme = () => {
+        const theme = readTheme();
+        const root = document.documentElement;
+        if (theme) root.dataset.theme = theme;
+        else delete root.dataset.theme;
+
+        // Unlike the CSS, the icon cannot defer to prefers-color-scheme — it is
+        // one file or the other — so "auto" has to resolve to a real theme here.
+        const resolved =
+          theme || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+        const href = `/favicon-${resolved}.gif`;
+        const icon = document.getElementById("favicon");
+        if (icon && icon.getAttribute("href") !== href) {
+          // Replaced, not re-pointed: Chrome caches the tab icon and ignores an
+          // in-place href change, so setAttribute alone left the old one up.
+          const next = document.createElement("link");
+          next.id = "favicon";
+          next.rel = "icon";
+          next.type = "image/gif";
+          next.setAttribute("sizes", "64x64");
+          next.href = href;
+          icon.remove();
+          document.head.appendChild(next);
+        }
+
+        // The button's visible label is drawn by CSS off [data-theme], which
+        // keeps it correct before this script has ever run. CSS content is not
+        // reliably announced though, so the accessible name is set here.
+        const btn = document.getElementById("theme-toggle");
+        if (btn) {
+          btn.setAttribute(
+            "aria-label",
+            "Theme: " + THEME_NAMES[theme] + ". Switch to " + THEME_NAMES[nextTheme(theme)] + ".",
+          );
+        }
+      };
+      applyTheme();
+      document.addEventListener("astro:after-swap", applyTheme);
+      // The head runs before the button exists; this is the pass that labels it.
+      document.addEventListener("DOMContentLoaded", applyTheme);
+
+      // On "auto", the OS can flip underneath us; the CSS follows on its own but
+      // the icon has to be told.
+      matchMedia("(prefers-color-scheme: light)").addEventListener("change", applyTheme);
+
+      // Delegated, so it is bound once and survives every page swap.
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest && e.target.closest("#theme-toggle");
+        if (!btn) return;
+        const next = nextTheme(readTheme());
+        try {
+          if (next) localStorage.setItem("theme", next);
+          else localStorage.removeItem("theme");
+        } catch {}
+
+        // The new theme wipes in from the button. View transitions snapshot the
+        // old and new page and cross-fade them by default; clipping the new
+        // snapshot to a circle growing out of the button turns that into a
+        // wipe. Without support, or with reduced motion asked for, the theme
+        // just changes — the swap is the feature, the animation is not.
+        const motion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!document.startViewTransition || motion) return applyTheme();
+
+        const r = btn.getBoundingClientRect();
+        const x = r.left + r.width / 2;
+        const y = r.top + r.height / 2;
+        // far enough to reach whichever corner is furthest from the button
+        const reach = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+
+        // Marks this transition as a theme swap rather than a navigation, so the
+        // CRT collapse below stands down and the wipe is the only motion.
+        const root = document.documentElement;
+        root.dataset.vt = "theme";
+        const vt = document.startViewTransition(applyTheme);
+        vt.ready.then(() => {
+          root.animate(
+            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${reach}px at ${x}px ${y}px)`] },
+            {
+              duration: 480,
+              easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+              pseudoElement: "::view-transition-new(root)",
+            },
+          );
+        });
+        vt.finished.finally(() => delete root.dataset.vt);
+      });
     </script>
   </head>
   <body>
@@ -123,6 +244,11 @@ const NAV = [
             {item.label}
           </a>
         ))}
+        {/* Label comes from CSS, keyed off [data-theme], so it is right on the
+            first paint. The accessible name is set by the head script. */}
+        <button type="button" id="theme-toggle" class="nav-link theme-toggle">
+          <span class="theme-state" aria-hidden="true"></span>
+        </button>
       </div>
     </nav>
 
@@ -275,27 +401,28 @@ const NAV = [
   /* One focus treatment for the whole site. Green reads as a terminal selection
      and matches the language already used for active nav and hover. */
   :focus-visible {
-    outline: 2px solid var(--green);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
     border-radius: 2px;
   }
 
   /* ── Green text selection ── */
   ::selection {
-    background: var(--green);
+    background: var(--accent);
     color: var(--bg);
     text-shadow: none;
   }
 
   /* ── Custom terminal cursor (whole viewport, incl. gutters) ──
-     The two greens below are the only palette literals left in the codebase:
-     an SVG data URI can't read a custom property. Keep them in sync with
-     --green / --bg in src/tokens.ts. */
+     A url() cannot hold a var(), so the arrow's colours are baked into an SVG
+     data URI — which means each theme needs its own copy of the whole cursor.
+     tokens.ts generates both and hands them over as these two properties, so
+     the pointer turns pink with everything else instead of staying green. */
   html, body {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='24' viewBox='0 0 16 24'%3E%3Cpath d='M1 1 L1 17 L5 13 L8 19 L10 18 L7 12 L13 12 Z' fill='%2300ff41' stroke='%230d0d0d' stroke-width='1' stroke-linejoin='round'/%3E%3C/svg%3E") 1 1, auto;
+    cursor: var(--cursor), auto;
   }
   a, button, [role="button"], .nav-link, summary, label {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='24' viewBox='0 0 16 24'%3E%3Cpath d='M1 1 L1 17 L5 13 L8 19 L10 18 L7 12 L13 12 Z' fill='%230d0d0d' stroke='%2300ff41' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E") 1 1, pointer;
+    cursor: var(--cursor-pointer), pointer;
   }
 
   /* A touch device has no cursor to replace, so don't ship it one. CSS cannot
@@ -320,7 +447,7 @@ const NAV = [
     background: var(--border-strong);
     border-radius: 4px;
   }
-  ::-webkit-scrollbar-thumb:hover { background: var(--green); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
   /* ── Arch-style boot overlay ── */
   .boot {
@@ -376,7 +503,7 @@ const NAV = [
     height: auto;
     clip-path: none;
     padding: 12px 18px;
-    background: var(--green);
+    background: var(--accent);
     color: var(--bg);
     font-size: var(--fs-body);
     text-decoration: none;
@@ -392,7 +519,7 @@ const NAV = [
     word-break: break-word;
     margin: 0;
   }
-  .boot-log .ok   { color: var(--green); }
+  .boot-log .ok   { color: var(--accent); }
   .boot-log .head { color: var(--text-bright); }
   .boot-skip {
     position: fixed;
@@ -454,10 +581,13 @@ const NAV = [
     /* Fluid, and global — the old flat 56px/60px was overridden only on the home
        page, so five routes kept desktop padding all the way down to 360px. */
     padding: clamp(28px, 5vw, 56px) clamp(20px, 5.5vw, 60px);
-    /* faint terminal grid backdrop */
+    /* Terminal grid backdrop. Anything boxed that sits on a panel — buttons,
+       chips, tags — needs its own background or these lines run straight
+       through it. Translucent hover tints on those need mixing, not layering,
+       for the same reason. */
     background-image:
-      linear-gradient(rgb(var(--green-rgb) / 0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(var(--green-rgb) / 0.025) 1px, transparent 1px);
+      linear-gradient(rgb(var(--accent-rgb) / var(--grid)) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--accent-rgb) / var(--grid)) 1px, transparent 1px);
     background-size: 28px 28px;
   }
 
@@ -478,7 +608,7 @@ const NAV = [
     position: absolute;
     width: 14px;
     height: 14px;
-    border: 2px solid var(--green);
+    border: 2px solid var(--accent);
   }
   .corner.tl { top: -1px; left: -1px;  border-right: none; border-bottom: none; }
   .corner.tr { top: -1px; right: -1px; border-left: none;  border-bottom: none; }
@@ -505,7 +635,7 @@ const NAV = [
   }
 
   .prompt {
-    color: var(--green);
+    color: var(--accent);
     font-size: var(--fs-body);
   }
 
@@ -532,7 +662,21 @@ const NAV = [
   }
 
   .nav-link:hover,
-  .nav-link.active { color: var(--green); }
+  .nav-link.active { color: var(--accent); }
+
+  .theme-toggle {
+    background: none;
+    border: 0;
+    font: inherit;
+    color: var(--text-dim);
+    /* the links pad 12px 6px; match, minus what the brackets already add */
+    padding: 12px 4px;
+  }
+  .theme-toggle:hover { color: var(--accent); }
+  /* No stored choice: following the OS, whichever way that points. */
+  .theme-state::after { content: "[auto]"; }
+  :root[data-theme="dark"] .theme-state::after { content: "[dark]"; }
+  :root[data-theme="light"] .theme-state::after { content: "[light]"; }
 
   /* ── Body ── */
   .terminal-body {
@@ -563,6 +707,14 @@ const NAV = [
       animation: crt-on 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
       animation-delay: 90ms;
     }
+
+    /* A theme swap is not a navigation. The CRT collapse would fight the wipe
+       the toggle drives, so it stands down for that one case: the old page
+       simply holds still underneath while the new one is clipped in over it. */
+    :root[data-vt="theme"]::view-transition-old(root),
+    :root[data-vt="theme"]::view-transition-new(root) {
+      animation: none;
+    }
   }
   @keyframes crt-off {
     0%   { opacity: 1; transform: scaleY(1) scaleX(1); }
@@ -587,7 +739,7 @@ const NAV = [
     border-top: 1px solid var(--border);
     font-size: var(--fs-meta);
   }
-  .foot-prompt { color: var(--green); }
+  .foot-prompt { color: var(--accent); }
   .foot-cmd { color: var(--amber); }
   .foot-links {
     display: flex;
@@ -604,14 +756,14 @@ const NAV = [
     text-decoration: none;
     transition: color 0.15s;
   }
-  .foot-links a:hover { color: var(--green); }
+  .foot-links a:hover { color: var(--accent); }
 
   /* ── Shared bits ── */
   .cursor {
     display: inline-block;
     width: 9px;
     height: 1em;
-    background: var(--green);
+    background: var(--accent);
     vertical-align: text-bottom;
     animation: blink 1.1s step-end infinite;
   }

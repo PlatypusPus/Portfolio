@@ -229,7 +229,7 @@ const badMessage = errorKey === "short" || errorKey === "links";
     font-size: var(--fs-title);
     font-weight: 400;
     line-height: 1.4;
-    color: var(--green);
+    color: var(--accent);
     letter-spacing: 0;
   }
   .page-body {
@@ -261,14 +261,14 @@ const badMessage = errorKey === "short" || errorKey === "links";
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    color: var(--green);
+    color: var(--accent);
     text-decoration: none;
     border-bottom: 1px solid transparent;
     transition: border-color 0.15s;
     /* addresses and URLs have no break opportunities of their own */
     overflow-wrap: anywhere;
   }
-  .contact-list a:hover { border-bottom-color: var(--green); }
+  .contact-list a:hover { border-bottom-color: var(--accent); }
   .dval { color: var(--text); overflow-wrap: anywhere; }
 
   /* An 80px label plus a 16px gap left too little for the value to break into. */
@@ -290,9 +290,9 @@ const badMessage = errorKey === "short" || errorKey === "links";
     overflow-wrap: anywhere;
   }
   .alert.err { border-color: var(--error); }
-  .alert.ok { border-color: var(--green); }
+  .alert.ok { border-color: var(--accent); }
   .alert.err .alert-tag { color: var(--error); }
-  .alert.ok .alert-tag { color: var(--green); }
+  .alert.ok .alert-tag { color: var(--accent); }
 
   .cform {
     display: flex;
@@ -305,7 +305,7 @@ const badMessage = errorKey === "short" || errorKey === "links";
     font-size: var(--fs-body);
     color: var(--text-dim);
   }
-  .field label::before { content: "$ "; color: var(--green); }
+  .field label::before { content: "$ "; color: var(--accent); }
 
   .cform input,
   .cform textarea {
@@ -323,7 +323,7 @@ const badMessage = errorKey === "short" || errorKey === "links";
   }
   .cform textarea { resize: vertical; min-height: 140px; }
   .cform input:focus,
-  .cform textarea:focus { border-color: var(--green); }
+  .cform textarea:focus { border-color: var(--accent); }
   .cform [aria-invalid="true"] { border-color: var(--error); border-width: 2px; }
   /* fires only after a real submit attempt, so nobody is scolded mid-typing */
   .cform input:user-invalid,
@@ -343,9 +343,9 @@ const badMessage = errorKey === "short" || errorKey === "links";
   }
 
   .btn[data-sent="1"] {
-    border-color: var(--green);
+    border-color: var(--accent);
     color: var(--bg);
-    background: var(--green);
+    background: var(--accent);
   }
 
   /* Off-screen rather than display:none - some bots skip hidden fields. */
@@ -367,21 +367,21 @@ const badMessage = errorKey === "short" || errorKey === "links";
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    background: transparent;
-    border: 1px solid var(--green);
+    background: var(--bg);
+    border: 1px solid var(--accent);
     border-radius: 6px;
-    color: var(--green);
+    color: var(--accent);
     font-family: inherit;
     font-size: var(--fs-body);
     padding: 9px 18px;
     transition: background 0.15s, color 0.15s;
   }
-  .btn:hover { background: var(--green); color: var(--bg); }
+  .btn:hover { background: var(--accent); color: var(--bg); }
   .btn:disabled {
     opacity: 0.55;
     border-color: var(--border-strong);
     color: var(--text-dim);
-    background: transparent;
+    background: var(--bg);
   }
   .note { font-size: var(--fs-meta); color: var(--text-dim); }
 </style>

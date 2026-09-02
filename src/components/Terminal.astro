@@ -330,12 +330,12 @@ const ROUTES: Record<string, string> = {
     transition: color 0.15s, border-color 0.15s, transform 0.15s;
   }
   .term-launch:hover {
-    color: var(--green);
-    border-color: var(--green);
+    color: var(--accent);
+    border-color: var(--accent);
     transform: translateY(-1px);
   }
   .term-launch:active { transform: translateY(0); }
-  .tl-glyph { color: var(--green); letter-spacing: -0.05em; }
+  .tl-glyph { color: var(--accent); letter-spacing: -0.05em; }
   .tl-key {
     font-family: inherit;
     font-size: var(--fs-meta);
@@ -407,7 +407,7 @@ const ROUTES: Record<string, string> = {
   }
   .tw-dots i:first-child { background: var(--error); }
   .tw-dots i:nth-child(2) { background: var(--amber); }
-  .tw-dots i:last-child { background: var(--green); }
+  .tw-dots i:last-child { background: var(--accent); }
   .tw-title {
     flex: 1;
     color: var(--text-dim);
@@ -432,7 +432,7 @@ const ROUTES: Record<string, string> = {
     color: var(--text-dim);
     transition: color 0.15s, background 0.15s;
   }
-  .tw-close:hover { color: var(--error); background: rgb(var(--green-rgb) / 0.05); }
+  .tw-close:hover { color: var(--error); background: rgb(var(--accent-rgb) / 0.05); }
 
   .term-out {
     flex: 1;
@@ -444,7 +444,7 @@ const ROUTES: Record<string, string> = {
     overflow-wrap: anywhere;
   }
   .tl { color: var(--text); }
-  .tl-green { color: var(--green); }
+  .tl-green { color: var(--accent); }
   .tl-amber { color: var(--amber); }
   .tl-dim { color: var(--text-dim); }
   .tl-err { color: var(--error); }
@@ -457,8 +457,8 @@ const ROUTES: Record<string, string> = {
     padding: 0 14px;
     border-top: 1px solid var(--border);
   }
-  .term-form:focus-within { border-top-color: var(--green); }
-  .term-prompt { color: var(--green); flex-shrink: 0; }
+  .term-form:focus-within { border-top-color: var(--accent); }
+  .term-prompt { color: var(--accent); flex-shrink: 0; }
   .term-in {
     flex: 1;
     min-width: 0;

@@ -260,7 +260,7 @@ const FEATURED = PROJECTS.slice(0, 3);
     flex-shrink: 0;
     width: 110px;
     font-size: var(--fs-body);
-    color: var(--green);
+    color: var(--accent);
   }
   .stack-items {
     display: flex;
@@ -273,11 +273,12 @@ const FEATURED = PROJECTS.slice(0, 3);
     padding: 5px 12px;
     border: 1px solid var(--border);
     border-radius: 5px;
+    background: var(--bg);
     transition: border-color 0.15s, color 0.15s;
   }
   .stack-items span:hover {
-    border-color: var(--green);
-    color: var(--green);
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   @media (max-width: 540px) {
@@ -313,7 +314,7 @@ const FEATURED = PROJECTS.slice(0, 3);
     height: 9px;
     border-radius: 50%;
     background: var(--bg);
-    border: 2px solid var(--green);
+    border: 2px solid var(--accent);
   }
   .tl-head {
     display: flex;
@@ -336,7 +337,7 @@ const FEATURED = PROJECTS.slice(0, 3);
   }
   .tl-place {
     font-size: var(--fs-body);
-    color: var(--green);
+    color: var(--accent);
     margin-top: 4px;
   }
   .tl-detail {
@@ -366,12 +367,12 @@ const FEATURED = PROJECTS.slice(0, 3);
     align-items: center;
     min-height: 44px;
     font-size: var(--fs-body);
-    color: var(--green);
+    color: var(--accent);
     text-decoration: none;
     border-bottom: 1px solid transparent;
     transition: border-color 0.15s;
   }
-  .view-all:hover { border-bottom-color: var(--green); }
+  .view-all:hover { border-bottom-color: var(--accent); }
   .view-all .arrow { font-size: var(--fs-meta); }
 
   /* min() lets the track shrink below its ideal width instead of overflowing,
@@ -422,10 +423,10 @@ const FEATURED = PROJECTS.slice(0, 3);
     font-family: var(--font-pixel);
     font-size: var(--fs-display);
     font-weight: 400;
-    color: var(--green);
+    color: var(--accent);
     line-height: 1.4;
     letter-spacing: 0;
-    text-shadow: 0 0 24px rgb(var(--green-rgb) / 0.25);
+    text-shadow: 0 0 24px rgb(var(--accent-rgb) / var(--bloom));
   }
 
   .role {
@@ -447,7 +448,7 @@ const FEATURED = PROJECTS.slice(0, 3);
     display: inline-block;
     width: 10px;
     height: 1em;
-    background: var(--green);
+    background: var(--accent);
     transform: translateY(2px);
     margin-left: 3px;
   }
@@ -473,14 +474,17 @@ const FEATURED = PROJECTS.slice(0, 3);
     text-decoration: none;
     border: 1px solid var(--border);
     border-radius: 6px;
+    background: var(--bg);
     transition: border-color 0.15s, color 0.15s, background 0.15s;
   }
   .resume:hover {
-    border-color: var(--green);
-    color: var(--green);
-    background: rgb(var(--green-rgb) / 0.05);
+    border-color: var(--accent);
+    color: var(--accent);
+    /* mixed rather than laid over at 5% alpha: a translucent tint would let
+       the panel's grid back through the button it was just hidden behind */
+    background: color-mix(in srgb, var(--accent) 5%, var(--bg));
   }
-  .resume-cmd { color: var(--green); }
+  .resume-cmd { color: var(--accent); }
   .resume-arrow { font-size: var(--fs-body); opacity: 0.7; }
 
   .socials {
@@ -502,15 +506,15 @@ const FEATURED = PROJECTS.slice(0, 3);
     color: var(--text-dim);
     border: 1px solid var(--border);
     border-radius: 6px;
-    background: none;
+    background: var(--bg);
     font: inherit;
     transition: color 0.15s, border-color 0.15s, background 0.15s;
   }
   .socials a:hover,
   .socials button:hover {
-    color: var(--green);
-    border-color: var(--green);
-    background: rgb(var(--green-rgb) / 0.05);
+    color: var(--accent);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 5%, var(--bg));
   }
 
   /* username preview tooltip (all socials) */
@@ -522,7 +526,7 @@ const FEATURED = PROJECTS.slice(0, 3);
     padding: 4px 10px;
     font-size: var(--fs-meta);
     white-space: nowrap;
-    color: var(--green);
+    color: var(--accent);
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 4px;
@@ -536,7 +540,7 @@ const FEATURED = PROJECTS.slice(0, 3);
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
-  .copy-discord.show .tip { border-color: var(--green); }
+  .copy-discord.show .tip { border-color: var(--accent); }
 
   .status {
     display: flex;
@@ -550,13 +554,13 @@ const FEATURED = PROJECTS.slice(0, 3);
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: var(--green);
+    background: var(--accent);
     animation: pulse-dot 2.4s ease-in-out infinite;
   }
 
   @keyframes pulse-dot {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(var(--green-rgb) / 0.4); }
-    50%      { opacity: 0.5; box-shadow: 0 0 0 6px rgb(var(--green-rgb) / 0); }
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(var(--accent-rgb) / 0.4); }
+    50%      { opacity: 0.5; box-shadow: 0 0 0 6px rgb(var(--accent-rgb) / 0); }
   }
 
   @media (max-width: 760px) {

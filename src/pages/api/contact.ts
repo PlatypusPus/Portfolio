@@ -29,7 +29,7 @@ export const POST: APIRoute = async ({ request, clientAddress, cookies, locals, 
   let name = '', email = '', message = '', honeypot = '';
 
   const bail = (error: string, keepDraft = true) => {
-    const draft = keepDraft
+    const draft: Record<string, string> = keepDraft
       ? { d_name: name, d_email: email, d_message: message }
       : {};
     return redirect(back({ error, ...draft }), 303);

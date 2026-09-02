@@ -50,6 +50,13 @@ const updated = "September 2026";
           ask me to delete one at any time.
         </p>
         <p>
+          Switching the site between dark and light saves that one choice in your
+          browser's local storage, under <code>theme</code>. It stays on your
+          device, is never sent here, and holds nothing but the word
+          <code>dark</code> or <code>light</code>. Clearing your site data
+          forgets it and the site goes back to following your system setting.
+        </p>
+        <p>
           Sending a message also sets one cookie, <code>shovin_contact_at</code>,
           which holds nothing but the time you sent it. It exists so the form
           can't be hammered, expires after a minute, and never leaves this site.
@@ -91,7 +98,7 @@ const updated = "September 2026";
     font-size: var(--fs-title);
     font-weight: 400;
     line-height: 1.4;
-    color: var(--green);
+    color: var(--accent);
     letter-spacing: 0;
   }
   .updated {
@@ -113,12 +120,12 @@ const updated = "September 2026";
     color: var(--text-dim);
   }
   .prose a {
-    color: var(--green);
+    color: var(--accent);
     text-decoration: none;
     border-bottom: 1px solid transparent;
     transition: border-color 0.15s;
   }
-  .prose a:hover { border-bottom-color: var(--green); }
+  .prose a:hover { border-bottom-color: var(--accent); }
   .prose code {
     font-family: inherit;
     font-size: var(--fs-meta);

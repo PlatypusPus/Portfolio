@@ -11,3 +11,14 @@
 # forever. Rename the file if you ever swap the photo.
 /shovin.webp
   Cache-Control: public, max-age=604800
+
+# The bongo cat. Content-hashed names would be better, but these have to sit at
+# fixed paths for the browser to find them, so a week is the compromise.
+/favicon-dark.gif
+  cache-control: public, max-age=604800
+/favicon-light.gif
+  cache-control: public, max-age=604800
+/favicon.ico
+  cache-control: public, max-age=604800
+/apple-touch-icon.png
+  cache-control: public, max-age=604800

@@ -7,7 +7,6 @@ export const prerender = false;
 
 const COOLDOWN_COOKIE = 'shovin_contact_at';
 
-/** Post/Redirect/Get target. `d_*` hands the draft back so a failure never eats it. */
 const back = (params: Record<string, string> = {}) => {
   const q = new URLSearchParams(params).toString();
   return `/contact${q ? `?${q}` : ''}#form`;
@@ -26,14 +25,14 @@ const countLinks = (v: string) => (v.match(/https?:\/\/|www\./gi) || []).length;
 const seenByIp = new Map<string, number>();
 const SEEN_MAX = 5_000;
 
-export const POST: APIRoute = async ({ request, clientAddress, cookies, locals }) => {
+export const POST: APIRoute = async ({ request, clientAddress, cookies, locals, redirect }) => {
   let name = '', email = '', message = '', honeypot = '';
 
   const bail = (error: string, keepDraft = true) => {
     const draft = keepDraft
       ? { d_name: name, d_email: email, d_message: message }
       : {};
-    return Response.redirect(new URL(back({ error, ...draft }), request.url), 303);
+    return redirect(back({ error, ...draft }), 303);
   };
 
   try {
@@ -49,7 +48,7 @@ export const POST: APIRoute = async ({ request, clientAddress, cookies, locals }
 
   // Accept and drop. Telling a bot it failed just teaches it to retry.
   if (honeypot) {
-    return Response.redirect(new URL(back({ sent: '1' }), request.url), 303);
+    return redirect(back({ sent: '1' }), 303);
   }
 
   if (!name || !email || !message) return bail('missing');
@@ -113,5 +112,5 @@ export const POST: APIRoute = async ({ request, clientAddress, cookies, locals }
     maxAge: Math.ceil(LIMITS.cooldownMs / 1000),
   });
 
-  return Response.redirect(new URL(back({ sent: '1' }), request.url), 303);
+  return redirect(back({ sent: '1' }), 303);
 };
